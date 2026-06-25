@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Samples**: Added a suite of 10 CPU/GPU sample projects demonstrating integration with Console, ASP.NET Core (singleton request serialization), Blazor Server (SignalR), WinForms (Dark Mode), and .NET MAUI.
+- **Mobile Support**: Added native execution support for Android (`arm64-v8a` via Eigen/Ruy) and iOS (`arm64` via Apple Accelerate), featuring automatic MSBuild signing overrides and resource extraction workarounds.
 - **Documentation**: Created a complete, production-ready VitePress documentation site covering Getting Started, the .NET 10.0 sample suite, advanced mobile deployment, and an exhaustive API options reference.
 - **CI/CD**: Added a GitHub Actions workflow to automate building and deploying the documentation site to GitHub Pages.
 - **Testing**: Expanded xUnit test suite from 16 to 152 tests, adding comprehensive integration, performance, memory pooling, and edge-case test coverage
