@@ -8,16 +8,16 @@ Each application type features separate **CPU** and **GPU** projects to demonstr
 
 ## 💻 1. Console Applications
 - **Projects**: 
-  - [Console.Cpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.Console.Cpu/)
-  - [Console.Gpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.Console.Gpu/)
+  - [Console.Cpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.Console.Cpu)
+  - [Console.Gpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.Console.Gpu)
 - **Core Pattern**: A lightweight command-line tool showing basic usage. It utilizes the `ModelDownloader` API with asynchronous callbacks to print model download progress, instantiates the model runner, loads audio, and prints timestamped transcription segments to the console.
 
 ---
 
 ## 🌐 2. ASP.NET Core Minimal APIs
 - **Projects**:
-  - [AspNetCore.Cpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.AspNetCore.Cpu/)
-  - [AspNetCore.Gpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.AspNetCore.Gpu/)
+  - [AspNetCore.Cpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.AspNetCore.Cpu)
+  - [AspNetCore.Gpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.AspNetCore.Gpu)
 - **Core Pattern**: Exposes a `POST /api/transcribe` endpoint that handles multipart audio uploads.
 - **Production Architecture**:
   - **Thread-Safety & Concurrency**: The underlying native C++ engine is not thread-safe for simultaneous re-entrant inference calls. The samples wrap model execution inside a registered `WhisperService` **Singleton** lifecycle.
@@ -31,8 +31,8 @@ Each application type features separate **CPU** and **GPU** projects to demonstr
 
 ## 🎨 3. Blazor Web Apps
 - **Projects**:
-  - [Blazor.Cpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.Blazor.Cpu/)
-  - [Blazor.Gpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.Blazor.Gpu/)
+  - [Blazor.Cpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.Blazor.Cpu)
+  - [Blazor.Gpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.Blazor.Gpu)
 - **Core Pattern**: A gorgeous, modern dark-mode Blazor Server application.
 - **Key Features**:
   - **Interactive Rendering**: Implemented using `@rendermode InteractiveServer` to handle real-time UI state binding.
@@ -43,8 +43,8 @@ Each application type features separate **CPU** and **GPU** projects to demonstr
 
 ## 🖥️ 4. Windows Forms Desktop Apps
 - **Projects**:
-  - [WinForms.Cpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.WinForms.Cpu/)
-  - [WinForms.Gpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.WinForms.Gpu/)
+  - [WinForms.Cpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.WinForms.Cpu)
+  - [WinForms.Gpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.WinForms.Gpu)
 - **Core Pattern**: Classic desktop applications updated for modern Windows deployment.
 - **Key Features**:
   - **Native Dark Mode**: Uses the official .NET 10.0 WinForms dark mode styling:
@@ -58,8 +58,8 @@ Each application type features separate **CPU** and **GPU** projects to demonstr
 
 ## 📱 5. .NET MAUI Cross-Platform Apps
 - **Projects**:
-  - [Maui.Cpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.Maui.Cpu/)
-  - [Maui.Gpu](file:///g:/Git-Repos/FasterWhisper/samples/Qourex.FasterWhisper.NET.Samples.Maui.Gpu/)
+  - [Maui.Cpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.Maui.Cpu)
+  - [Maui.Gpu](https://github.com/qourex/FasterWhisper.NET/tree/main/samples/Qourex.FasterWhisper.NET.Samples.Maui.Gpu)
 - **Core Pattern**: Cross-platform application targeting Android, iOS, macOS, and Windows.
 - **Platform targeting differences**:
   - **Cpu Version**: Targets Windows, iOS, Mac Catalyst, and Android.
