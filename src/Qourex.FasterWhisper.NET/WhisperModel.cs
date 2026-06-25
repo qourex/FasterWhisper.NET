@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Threading.Channels;
-using System.Runtime.CompilerServices;
-using System.Linq;
-using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Qourex.FasterWhisper.NET
@@ -202,7 +202,7 @@ namespace Qourex.FasterWhisper.NET
 
                     var mmf = System.IO.MemoryMappedFiles.MemoryMappedFile.CreateFromFile(
                         filePath, FileMode.Open, null, 0, System.IO.MemoryMappedFiles.MemoryMappedFileAccess.Read);
-                    
+
                     var accessor = mmf.CreateViewAccessor(0, fileInfo.Length, System.IO.MemoryMappedFiles.MemoryMappedFileAccess.Read);
 
                     mappedList.Add((fileName, mmf, accessor));
@@ -519,7 +519,7 @@ namespace Qourex.FasterWhisper.NET
 
             nuint numDevices = (nuint)(deviceIndices?.Length ?? 0);
             IntPtr errorPtr;
-            
+
             _modelPtr = NativeMethods.LoadWhisperModel(
                 modelPath,
                 device,
@@ -536,7 +536,7 @@ namespace Qourex.FasterWhisper.NET
                 string errorMsg = errorPtr != IntPtr.Zero
                     ? Marshal.PtrToStringUTF8(errorPtr) ?? "Unknown native loading error."
                     : "Unknown native loading error.";
-                
+
                 if (errorPtr != IntPtr.Zero)
                 {
                     NativeMethods.FreeString(errorPtr);
@@ -550,7 +550,7 @@ namespace Qourex.FasterWhisper.NET
             if (_nMels <= 0)
             {
                 // Fallback to default if native call returned invalid/empty
-                _nMels = 80; 
+                _nMels = 80;
             }
 
             _audioProcessor = new AudioProcessor(_nMels);
@@ -859,7 +859,8 @@ namespace Qourex.FasterWhisper.NET
                             {
                                 whisperSeg.Words = whisperSeg.Words
                                     .Where(w => w.Start < clipEnd)
-                                    .Select(w => {
+                                    .Select(w =>
+                                    {
                                         w.End = Math.Min(w.End, clipEnd);
                                         return w;
                                     })

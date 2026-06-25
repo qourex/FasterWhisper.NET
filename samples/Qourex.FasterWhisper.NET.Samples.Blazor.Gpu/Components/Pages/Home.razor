@@ -1,0 +1,683 @@
+@page "/"
+@rendermode InteractiveServer
+@inject BlazorWhisperService WhisperService
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+@using System.IO
+
+<PageTitle>FasterWhisper.NET - High Performance Transcription</PageTitle>
+
+<div class="hero-section">
+    <h1 class="hero-title">High-Performance Offline Speech-to-Text</h1>
+    <p class="hero-subtitle">Transcribe audio with extremely low latency using CTranslate2 and Silero VAD v5.</p>
+</div>
+
+<div class="glass-grid">
+    <!-- Left Column: Controls -->
+    <div class="glass-card">
+        <h2 class="card-title">Transcription Settings</h2>
+        
+        <div class="form-group">
+            <label class="form-label">Model Size</label>
+            <div class="select-wrapper">
+                <select @bind="SelectedModel" class="form-select">
+                    <option value="tiny">Tiny (Quickest, ~75MB)</option>
+                    <option value="base">Base (~145MB)</option>
+                    <option value="small">Small (~460MB)</option>
+                    <option value="medium">Medium (~1.5GB)</option>
+                </select>
+            </div>
+            <span class="help-text">Models are cached locally after first download.</span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Select Audio File</label>
+            <div class="audio-preset-grid">
+                <button class="preset-btn @(SelectedAudioPath == "harvard.wav" ? "active" : "")" @onclick='() => SelectPreset("harvard.wav")'>
+                    <span class="preset-icon">🎵</span>
+                    <span class="preset-name">harvard.wav</span>
+                    <span class="preset-dur">(~3.2 MB)</span>
+                </button>
+                <button class="preset-btn @(SelectedAudioPath == "harvard2.wav" ? "active" : "")" @onclick='() => SelectPreset("harvard2.wav")'>
+                    <span class="preset-icon">🎵</span>
+                    <span class="preset-name">harvard2.wav</span>
+                    <span class="preset-dur">(~380 KB)</span>
+                </button>
+            </div>
+            <div class="upload-divider">Or Upload WAV</div>
+            <InputFile OnChange="HandleFileSelected" class="file-input" accept=".wav" />
+        </div>
+
+        <button @onclick="StartTranscription" disabled="@IsProcessing" class="submit-btn">
+            @if (IsProcessing)
+            {
+                <span class="spinner"></span>
+                <span>Processing...</span>
+            }
+            else
+            {
+                <span>Start Transcription ⚡</span>
+            }
+        </button>
+
+        @if (!string.IsNullOrEmpty(StatusMessage))
+        {
+            <div class="status-box @(IsError ? "error" : "")">
+                <span class="status-indicator"></span>
+                <span class="status-text">@StatusMessage</span>
+            </div>
+        }
+
+        @if (DownloadPercent > 0 && DownloadPercent < 100)
+        {
+            <div class="progress-container">
+                <div class="progress-bar-header">
+                    <span>Downloading @DownloadingFile</span>
+                    <span>@((int)DownloadPercent)%</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" style="width: @(DownloadPercent)%"></div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Right Column: Results -->
+    <div class="glass-card results-card">
+        <div class="results-header">
+            <h2 class="card-title">Transcription Output</h2>
+            @if (Segments != null)
+            {
+                <span class="metrics-badge">Computed in @MetricsString</span>
+            }
+        </div>
+
+        <div class="transcript-timeline">
+            @if (Segments == null)
+            {
+                @if (IsProcessing)
+                {
+                    <div class="timeline-empty">
+                        <div class="pulse-loader"></div>
+                        <p>Transcribing audio, please wait...</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="timeline-empty">
+                        <span class="empty-icon">📝</span>
+                        <p>Click "Start Transcription" to begin speech-to-text decoding.</p>
+                    </div>
+                }
+            }
+            else if (Segments.Count == 0)
+            {
+                <div class="timeline-empty">
+                    <span class="empty-icon">❓</span>
+                    <p>No speech detected in this audio file.</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var segment in Segments)
+                {
+                    <div class="timeline-item">
+                        <div class="time-badge">
+                            @FormatTime(segment.Start) - @FormatTime(segment.End)
+                        </div>
+                        <div class="segment-text">
+                            @segment.Text
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .glass-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .glass-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .results-card {
+        min-height: 480px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: #ffffff;
+        border-left: 4px solid #6366f1;
+        padding-left: 0.75rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #cbd5e1;
+    }
+
+    .select-wrapper {
+        position: relative;
+    }
+
+    .form-select {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #f3f4f6;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s;
+        cursor: pointer;
+    }
+
+    .form-select:focus {
+        border-color: #6366f1;
+    }
+
+    .help-text {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.35rem;
+        display: block;
+    }
+
+    .audio-preset-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .preset-btn {
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 0.75rem;
+        color: #cbd5e1;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .preset-btn:hover {
+        background: rgba(99, 102, 241, 0.08);
+        border-color: rgba(99, 102, 241, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .preset-btn.active {
+        background: rgba(99, 102, 241, 0.15);
+        border-color: #6366f1;
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+    }
+
+    .preset-icon {
+        font-size: 1.25rem;
+    }
+
+    .preset-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .preset-dur {
+        font-size: 0.7rem;
+        color: #64748b;
+    }
+
+    .upload-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin: 1rem 0;
+    }
+
+    .upload-divider::before, .upload-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .upload-divider::before {
+        margin-right: .5em;
+    }
+
+    .upload-divider::after {
+        margin-left: .5em;
+    }
+
+    .file-input {
+        width: 100%;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        background: rgba(15, 23, 42, 0.3);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.75rem;
+        cursor: pointer;
+    }
+
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        border: none;
+        border-radius: 8px;
+        color: #ffffff;
+        padding: 0.9rem 1.5rem;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .status-box {
+        margin-top: 1.25rem;
+        background: rgba(52, 211, 153, 0.1);
+        border: 1px solid rgba(52, 211, 153, 0.2);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-box.error {
+        background: rgba(248, 113, 113, 0.1);
+        border-color: rgba(248, 113, 113, 0.2);
+    }
+
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        background: #34d399;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #34d399;
+    }
+
+    .status-box.error .status-indicator {
+        background: #f87171;
+        box-shadow: 0 0 8px #f87171;
+    }
+
+    .status-text {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #e2e8f0;
+    }
+
+    .progress-container {
+        margin-top: 1.25rem;
+    }
+
+    .progress-bar-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 0.35rem;
+        font-weight: 500;
+    }
+
+    .progress-bar-track {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1, #22d3ee);
+        border-radius: 9999px;
+        transition: width 0.3s ease-out;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .metrics-badge {
+        background: rgba(52, 211, 153, 0.15);
+        border: 1px solid rgba(52, 211, 153, 0.3);
+        color: #34d399;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 9999px;
+        font-weight: 600;
+    }
+
+    .transcript-timeline {
+        flex: 1;
+        overflow-y: auto;
+        max-height: 480px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-right: 0.5rem;
+    }
+
+    .transcript-timeline::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .transcript-timeline::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+    }
+
+    .transcript-timeline::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+    }
+
+    .timeline-item {
+        background: rgba(15, 23, 42, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        padding: 1rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .timeline-item:hover {
+        background: rgba(15, 23, 42, 0.5);
+        border-color: rgba(99, 102, 241, 0.2);
+        transform: translateX(4px);
+    }
+
+    .time-badge {
+        font-size: 0.75rem;
+        color: #818cf8;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+    }
+
+    .segment-text {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #e2e8f0;
+    }
+
+    .timeline-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        opacity: 0.4;
+    }
+
+    .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #ffffff;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .pulse-loader {
+        width: 40px;
+        height: 40px;
+        background-color: #6366f1;
+        border-radius: 50%;
+        animation: pulse-ring 1.5s infinite ease-in-out;
+        opacity: 0.8;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @@keyframes pulse-ring {
+        0% {
+            transform: scale(0.6);
+            opacity: 0.5;
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+        }
+        50% {
+            transform: scale(1);
+            opacity: 1;
+            box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+        }
+        100% {
+            transform: scale(0.6);
+            opacity: 0.5;
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .glass-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    private string SelectedModel { get; set; } = "tiny";
+    private string SelectedAudioPath { get; set; } = "harvard.wav";
+    private string? UploadedTempPath { get; set; }
+    
+    private bool IsProcessing { get; set; }
+    private string? StatusMessage { get; set; }
+    private bool IsError { get; set; }
+    
+    private double DownloadPercent { get; set; }
+    private string? DownloadingFile { get; set; }
+
+    private List<TextSegment>? Segments { get; set; }
+    private string? MetricsString { get; set; }
+
+    private void SelectPreset(string presetName)
+    {
+        SelectedAudioPath = presetName;
+        // Clear uploaded path if a preset is selected
+        if (UploadedTempPath != null)
+        {
+            try { File.Delete(UploadedTempPath); } catch {}
+            UploadedTempPath = null;
+        }
+        StatusMessage = $"Selected preset: {presetName}";
+        IsError = false;
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        IsProcessing = true;
+        StatusMessage = "Reading uploaded file...";
+        IsError = false;
+
+        try
+        {
+            // Clear old upload if any
+            if (UploadedTempPath != null)
+            {
+                try { File.Delete(UploadedTempPath); } catch {}
+            }
+
+            var tempFile = Path.GetTempFileName();
+            UploadedTempPath = tempFile;
+
+            // Stream upload to local temp file
+            using var stream = new FileStream(tempFile, FileMode.Create);
+            await e.File.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(stream);
+
+            SelectedAudioPath = Path.GetFileName(e.File.Name);
+            StatusMessage = $"File uploaded: {SelectedAudioPath}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Upload failed: {ex.Message}";
+            IsError = true;
+        }
+        finally
+        {
+            IsProcessing = false;
+        }
+    }
+
+    private async Task StartTranscription()
+    {
+        IsProcessing = true;
+        StatusMessage = "Starting...";
+        IsError = false;
+        Segments = null;
+        DownloadPercent = 0;
+
+        try
+        {
+            // Figure out the actual path of the file
+            string audioFilePath;
+            if (UploadedTempPath != null)
+            {
+                audioFilePath = UploadedTempPath;
+            }
+            else
+            {
+                // Presets are copied to samples/shared/
+                // At runtime, the project links them, so they copy to outputs directory
+                string presetsDir = AppContext.BaseDirectory;
+                audioFilePath = Path.Combine(presetsDir, SelectedAudioPath);
+                
+                // Fallback to searching relative paths if not in base dir
+                if (!File.Exists(audioFilePath))
+                {
+                    // Check if it's in shared directory relative to running project
+                    string sharedPath = Path.Combine(presetsDir, "..", "shared", SelectedAudioPath);
+                    if (File.Exists(sharedPath))
+                    {
+                        audioFilePath = sharedPath;
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException($"Preset audio file not found. Put it in: {audioFilePath}");
+                    }
+                }
+            }
+
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            StatusMessage = "Loading model (may download first)...";
+            StateHasChanged();
+
+            // Run transcription
+            var result = await WhisperService.TranscribeAsync(audioFilePath, SelectedModel, (fileName, percent) =>
+            {
+                DownloadingFile = fileName;
+                DownloadPercent = percent;
+                StatusMessage = $"Downloading model weights: {percent:F0}%";
+                InvokeAsync(StateHasChanged);
+            });
+
+            stopwatch.Stop();
+            MetricsString = $"{stopwatch.Elapsed.TotalSeconds:F2} seconds";
+            
+            Segments = result;
+            StatusMessage = "Transcription completed successfully!";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error: {ex.Message}";
+            IsError = true;
+        }
+        finally
+        {
+            IsProcessing = false;
+        }
+    }
+
+    private string FormatTime(double seconds)
+    {
+        return TimeSpan.FromSeconds(seconds).ToString(@"mm\:ss\.f");
+    }
+
+    public void Dispose()
+    {
+        if (UploadedTempPath != null)
+        {
+            try { File.Delete(UploadedTempPath); } catch {}
+        }
+    }
+}

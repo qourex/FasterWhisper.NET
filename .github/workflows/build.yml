@@ -36,7 +36,7 @@ jobs:
       run: dotnet restore Qourex.FasterWhisper.slnx
 
     - name: Build
-      run: dotnet build Qourex.FasterWhisper.slnx -c Release --no-restore
+      run: dotnet build Qourex.FasterWhisper.slnx -c Release
 
     # Note: Integration tests require native DLLs (qourex_fasterwhisper_native.dll, ctranslate2.dll)
     # which are only available after running build.ps1. Unit tests can run without them.

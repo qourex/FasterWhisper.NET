@@ -1,6 +1,16 @@
 <Solution>
   <Folder Name="/samples/">
     <Project Path="samples/Qourex.FasterWhisper.NET.Samples/Qourex.FasterWhisper.NET.Samples.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.Console.Cpu/Qourex.FasterWhisper.NET.Samples.Console.Cpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.Console.Gpu/Qourex.FasterWhisper.NET.Samples.Console.Gpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.AspNetCore.Cpu/Qourex.FasterWhisper.NET.Samples.AspNetCore.Cpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.AspNetCore.Gpu/Qourex.FasterWhisper.NET.Samples.AspNetCore.Gpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.Blazor.Cpu/Qourex.FasterWhisper.NET.Samples.Blazor.Cpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.Blazor.Gpu/Qourex.FasterWhisper.NET.Samples.Blazor.Gpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.WinForms.Cpu/Qourex.FasterWhisper.NET.Samples.WinForms.Cpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.WinForms.Gpu/Qourex.FasterWhisper.NET.Samples.WinForms.Gpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.Maui.Cpu/Qourex.FasterWhisper.NET.Samples.Maui.Cpu.csproj" />
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples.Maui.Gpu/Qourex.FasterWhisper.NET.Samples.Maui.Gpu.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj" />

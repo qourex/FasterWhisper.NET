@@ -70,14 +70,14 @@ namespace Qourex.FasterWhisper.NET.Tests
             // Window → FFT → (no changes) → IFFT → unwindow
             for (int i = 0; i < n; i++)
                 real[i] *= window[i];
-            
+
             AudioProcessor.FFTInPlace(real, imag, n);
-            
+
             // IFFT
             for (int i = 0; i < n; i++)
                 imag[i] = -imag[i];
             AudioProcessor.FFTInPlace(real, imag, n);
-            
+
             float invN = 1.0f / n;
             float maxError = 0;
             for (int i = 0; i < n; i++)

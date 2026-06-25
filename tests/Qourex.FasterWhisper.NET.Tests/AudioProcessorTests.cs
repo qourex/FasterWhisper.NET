@@ -16,7 +16,7 @@ namespace Qourex.FasterWhisper.NET.Tests
             double mel = HzToMel(originalHz);
             double reconstructedHz = MelToHz(mel);
 
-            Assert.True(Math.Abs(originalHz - reconstructedHz) < 1e-4, 
+            Assert.True(Math.Abs(originalHz - reconstructedHz) < 1e-4,
                 $"Mel conversions were not invertible. Expected {originalHz}, got {reconstructedHz}");
         }
 
@@ -34,15 +34,15 @@ namespace Qourex.FasterWhisper.NET.Tests
             var processor80 = new AudioProcessor(80);
             var processor128 = new AudioProcessor(128);
             float[] silence = new float[16000 * 2]; // 2 seconds of silence
-            
+
             // Extracting 80 mel channels
             float[] mel80 = processor80.ExtractMelSpectrogram(silence, 80);
             Assert.Equal(80 * 3000, mel80.Length);
- 
+
             // Extracting 128 mel channels
             float[] mel128 = processor128.ExtractMelSpectrogram(silence, 128);
             Assert.Equal(128 * 3000, mel128.Length);
- 
+
             // Output should be normalized
             foreach (float val in mel80)
             {
@@ -69,7 +69,7 @@ namespace Qourex.FasterWhisper.NET.Tests
 
             // Target RMS at -20 dBFS = 10^(-20/20) = 0.1
             float normalizedRms = CalculateRms(samples);
-            Assert.True(normalizedRms > 0.05f && normalizedRms < 0.2f, 
+            Assert.True(normalizedRms > 0.05f && normalizedRms < 0.2f,
                 $"Normalized RMS {normalizedRms:F4} should be near 0.1 (target -20 dBFS)");
         }
 
@@ -111,7 +111,7 @@ namespace Qourex.FasterWhisper.NET.Tests
             }
             mean /= (samples.Length / 2);
 
-            Assert.True(Math.Abs(mean) < 0.05f, 
+            Assert.True(Math.Abs(mean) < 0.05f,
                 $"DC offset should be removed by high-pass filter, but mean is {mean:F4}");
         }
 
@@ -131,7 +131,7 @@ namespace Qourex.FasterWhisper.NET.Tests
 
             // A 1kHz signal should pass through with minimal attenuation
             float ratio = filteredRms / originalRms;
-            Assert.True(ratio > 0.9f, 
+            Assert.True(ratio > 0.9f,
                 $"1kHz signal should be preserved (ratio={ratio:F4}), but was significantly attenuated");
         }
 
