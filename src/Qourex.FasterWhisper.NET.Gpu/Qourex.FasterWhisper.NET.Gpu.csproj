@@ -9,6 +9,7 @@
     
     <!-- Package Metadata -->
     <PackageId>FasterWhisper.NET.Gpu</PackageId>
+    <AssemblyName>FasterWhisper.NET.Gpu</AssemblyName>
     <Title>FasterWhisper.NET.Gpu (CUDA)</Title>
     <Authors>Qourex</Authors>
     <Copyright>Copyright (c) 2026 Qourex</Copyright>

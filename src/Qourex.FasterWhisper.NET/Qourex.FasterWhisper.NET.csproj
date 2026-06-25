@@ -9,6 +9,7 @@
     
     <!-- Package Metadata -->
     <PackageId>FasterWhisper.NET</PackageId>
+    <AssemblyName>FasterWhisper.NET</AssemblyName>
     <Title>FasterWhisper.NET</Title>
     <Authors>Qourex</Authors>
     <Copyright>Copyright (c) 2026 Qourex</Copyright>
