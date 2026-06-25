@@ -173,6 +173,9 @@ jobs:
         name: native-ios-arm64
         path: src/Qourex.FasterWhisper.NET/runtimes/ios-arm64/native
 
+    - name: Restore workloads
+      run: dotnet workload restore
+
     - name: Restore dependencies
       run: dotnet restore Qourex.FasterWhisper.slnx
 
