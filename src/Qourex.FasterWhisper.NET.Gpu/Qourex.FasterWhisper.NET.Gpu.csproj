@@ -17,7 +17,7 @@
     <PackageProjectUrl>https://github.com/qourex/fasterwhisper.net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/qourex/fasterwhisper.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>whisper;speech-to-text;transcription;ctranslate2;artificial-intelligence;cuda;gpu;machine-learning;speech;audio;vad;streaming;word-timestamps</PackageTags>
+    <PackageTags>whisper;speech-to-text;transcription;dotnet;csharp;ctranslate2;faster-whisper;speech-recognition;asr;voice-activity-detection;vad;silero-vad;streaming-transcription;onnxruntime;offline-speech-to-text;audio-processing;machine-learning;deep-learning;cuda;cudnn;gpu;gpu-acceleration</PackageTags>
     <PackageReleaseNotes>See https://github.com/qourex/fasterwhisper.net/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
