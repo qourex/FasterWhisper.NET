@@ -7,8 +7,11 @@
 [![Build & Test](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg)](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml)
 [![NuGet](https://img.shields.io/nuget/v/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=NuGet)](https://www.nuget.org/packages/FasterWhisper.NET)
 [![Downloads](https://img.shields.io/nuget/dt/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=Downloads)](https://www.nuget.org/packages/FasterWhisper.NET)
+[![Documentation](https://img.shields.io/badge/docs-VitePress-brightgreen.svg?style=flat-square)](https://qourex.github.io/FasterWhisper.NET/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
+
+📖 **[Read the Documentation](https://qourex.github.io/FasterWhisper.NET/)** for detailed guides, .NET 10.0 samples, and mobile deployment walkthroughs.
 
 ---
 
