@@ -2,10 +2,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IncludeMobileTargets)' != 'true'">net8.0;net9.0;net10.0</TargetFrameworks>
+    <!-- .NET 10 SDK / MSBuild 18+ (EOL net8.0 mobile workloads excluded) -->
+    <TargetFrameworks Condition="'$(IncludeMobileTargets)' == 'true' And $([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '18.0')) And $([MSBuild]::IsOSPlatform('OSX'))">net8.0;net9.0;net9.0-android;net9.0-ios;net9.0-maccatalyst;net9.0-macos;net9.0-windows;net10.0;net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-macos;net10.0-windows</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IncludeMobileTargets)' == 'true' And $([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '18.0')) And !$([MSBuild]::IsOSPlatform('OSX'))">net8.0;net9.0;net9.0-android;net9.0-ios;net9.0-maccatalyst;net9.0-windows;net10.0;net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows</TargetFrameworks>
+    <!-- .NET 8/9 SDK / MSBuild < 18 (All mobile workloads included) -->
+    <TargetFrameworks Condition="'$(IncludeMobileTargets)' == 'true' And !$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '18.0')) And $([MSBuild]::IsOSPlatform('OSX'))">net8.0;net8.0-android;net8.0-ios;net8.0-maccatalyst;net8.0-macos;net8.0-windows;net9.0;net9.0-android;net9.0-ios;net9.0-maccatalyst;net9.0-macos;net9.0-windows;net10.0;net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-macos;net10.0-windows</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IncludeMobileTargets)' == 'true' And !$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '18.0')) And !$([MSBuild]::IsOSPlatform('OSX'))">net8.0;net8.0-android;net8.0-ios;net8.0-maccatalyst;net8.0-windows;net9.0;net9.0-android;net9.0-ios;net9.0-maccatalyst;net9.0-windows;net10.0;net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <CheckEolWorkloads>false</CheckEolWorkloads>
+    <NoWarn>$(NoWarn);CA1416;IL2026</NoWarn>
     
     <!-- Package Metadata -->
     <PackageId>FasterWhisper.NET</PackageId>
@@ -51,5 +60,14 @@
     <None Include="../../NOTICE" Pack="true" PackagePath="" />
     <None Include="icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
+
+  <!-- Prevent command-line /p:Version=x.y.z from overriding TargetPlatformVersion on iOS and MacCatalyst -->
+  <Target Name="FixTargetPlatformVersion" BeforeTargets="ProcessFrameworkReferences;PrepareForBuild">
+    <PropertyGroup>
+      <TargetPlatformVersion Condition="'$(TargetFramework)' == 'net8.0-ios' Or '$(TargetFramework)' == 'net8.0-maccatalyst'">17.2</TargetPlatformVersion>
+      <TargetPlatformVersion Condition="'$(TargetFramework)' == 'net9.0-ios' Or '$(TargetFramework)' == 'net9.0-maccatalyst'">18.0</TargetPlatformVersion>
+      <TargetPlatformVersion Condition="'$(TargetFramework)' == 'net10.0-ios' Or '$(TargetFramework)' == 'net10.0-maccatalyst'">26.0</TargetPlatformVersion>
+    </PropertyGroup>
+  </Target>
 
 </Project>
