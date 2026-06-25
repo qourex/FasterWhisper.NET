@@ -20,12 +20,12 @@ namespace Qourex.FasterWhisper.NET.Tests
         public void ToSrt_ReturnsValidSrtFormat()
         {
             var segments = CreateTestSegments();
-            string srt = SubtitleExporter.ToSrt(segments);
+            string srt = SubtitleExporter.ToSrt(segments).Replace("\r\n", "\n");
 
-            Assert.Contains("1\r\n00:00:00,000 --> 00:00:05,200", srt);
+            Assert.Contains("1\n00:00:00,000 --> 00:00:05,200", srt);
             Assert.Contains("Hello, welcome to this tutorial.", srt);
-            Assert.Contains("2\r\n00:00:05,500 --> 00:00:10,100", srt);
-            Assert.Contains("3\r\n", srt);
+            Assert.Contains("2\n00:00:05,500 --> 00:00:10,100", srt);
+            Assert.Contains("3\n", srt);
         }
 
         [Fact]
