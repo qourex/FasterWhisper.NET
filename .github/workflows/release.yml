@@ -27,28 +27,28 @@ jobs:
           - os: win
             arch: x64
             runner: windows-latest
-            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF"
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             artifact_name: "native-win-x64"
             binary_files: "qourex_fasterwhisper_native.dll,_deps/ctranslate2-build/ctranslate2.dll"
 
           - os: linux
             arch: x64
             runner: ubuntu-latest
-            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DWITH_OPENBLAS=ON -DOPENMP_RUNTIME=COMP"
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DWITH_OPENBLAS=ON -DOPENMP_RUNTIME=COMP -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             artifact_name: "native-linux-x64"
             binary_files: "qourex_fasterwhisper_native.so,_deps/ctranslate2-build/libctranslate2.so"
 
           - os: osx
             arch: x64
             runner: macos-13 # Intel Mac runner
-            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64"
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64 -DOPENMP_RUNTIME=NONE -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             artifact_name: "native-osx-x64"
             binary_files: "qourex_fasterwhisper_native.dylib,_deps/ctranslate2-build/libctranslate2.dylib"
 
           - os: osx
             arch: arm64
             runner: macos-latest # Apple Silicon Mac runner
-            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_OSX_ARCHITECTURES=arm64"
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_OSX_ARCHITECTURES=arm64 -DOPENMP_RUNTIME=NONE -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             artifact_name: "native-osx-arm64"
             binary_files: "qourex_fasterwhisper_native.dylib,_deps/ctranslate2-build/libctranslate2.dylib"
 
