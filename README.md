@@ -2,7 +2,7 @@
   <img src="social-card.png" alt="Qourex FasterWhisper.NET Banner" width="100%" />
 </p>
 
-# Qourex.FasterWhisper.NET
+# FasterWhisper.NET
 
 <p align="center">
   <strong>by <a href="https://qourex.com">Qourex</a></strong> — Bringing high-performance speech recognition to .NET
@@ -10,23 +10,23 @@
 
 <p align="center">
   <a href="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml"><img src="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg" alt="Build &amp; Test" /></a>
-  <a href="https://www.nuget.org/packages/Qourex.FasterWhisper.NET"><img src="https://img.shields.io/nuget/v/Qourex.FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=NuGet" alt="NuGet"></a>
-  <a href="https://www.nuget.org/packages/Qourex.FasterWhisper.NET"><img src="https://img.shields.io/nuget/dt/Qourex.FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=Downloads" alt="NuGet Downloads"></a>
+  <a href="https://www.nuget.org/packages/FasterWhisper.NET"><img src="https://img.shields.io/nuget/v/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=NuGet" alt="NuGet"></a>
+  <a href="https://www.nuget.org/packages/FasterWhisper.NET"><img src="https://img.shields.io/nuget/dt/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=Downloads" alt="NuGet Downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
   <a href="https://dotnet.microsoft.com"><img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet" alt=".NET"></a>
 </p>
 
 ---
 
-**Qourex.FasterWhisper.NET** is a production-ready .NET SDK for OpenAI Whisper built on top of the high-performance **CTranslate2** inference engine.
+**FasterWhisper.NET** is a production-ready .NET SDK for OpenAI Whisper built on top of the high-performance **CTranslate2** inference engine.
 
 The project brings Whisper transcription, streaming, batching, diagnostics, audio analysis, subtitle generation, and deployment-focused tooling to modern .NET applications while remaining fully compatible with the CTranslate2 ecosystem.
 
 ---
 
-## ❓ Why Qourex.FasterWhisper.NET?
+## ❓ Why FasterWhisper.NET?
 
-Qourex.FasterWhisper.NET focuses on delivering a complete, optimized .NET developer experience around Whisper inference. Key capabilities include:
+FasterWhisper.NET focuses on delivering a complete, optimized .NET developer experience around Whisper inference. Key capabilities include:
 
 - **🔌 Native .NET API Surface** — Elegant, idiomatic C# builder and async patterns.
 - **⚡ CTranslate2-Powered Inference** — High-performance inference powered by CTranslate2.
@@ -44,10 +44,10 @@ Qourex.FasterWhisper.NET focuses on delivering a complete, optimized .NET develo
 
 ## ⚖️ Ecosystem Positioning
 
-Qourex.FasterWhisper.NET and Python's `faster-whisper` both leverage the high-performance CTranslate2 inference engine under the hood. 
+FasterWhisper.NET and Python's `faster-whisper` both leverage the high-performance CTranslate2 inference engine under the hood. 
 
 - **`faster-whisper`** provides an excellent Python-first experience and has become one of the most widely adopted Whisper implementations in the machine learning ecosystem.
-- **`Qourex.FasterWhisper.NET`** focuses on the .NET ecosystem by providing:
+- **`FasterWhisper.NET`** focuses on the .NET ecosystem by providing:
   - Native C# APIs (fully typed, thread-safe, and disposable)
   - Async-first design (native `async/await` and `IAsyncEnumerable<T>`)
   - Seamless integration with ASP.NET Core, desktop apps, and enterprise .NET pipelines
@@ -92,7 +92,7 @@ Below is a high-level overview of the library's architecture:
 
 ```mermaid
 graph TD
-    App[Application] --> SDK[Qourex.FasterWhisper.NET]
+    App[Application] --> SDK[FasterWhisper.NET]
     subgraph SDK Features
         SDK --> Audio[Audio Processing]
         SDK --> Stream[Streaming & IAsyncEnumerable]
@@ -125,7 +125,7 @@ graph TD
 
 ## 📋 Table of Contents
 
-- [Why Qourex.FasterWhisper.NET?](#-why-qourexfasterwhispernet)
+- [Why FasterWhisper.NET?](#-why-fasterwhispernet)
 - [Ecosystem Positioning](#-ecosystem-positioning)
 - [Project Health](#-project-health)
 - [Feature Matrix](#-feature-matrix)
@@ -165,13 +165,13 @@ graph TD
 ## 📦 Installation
 
 ```bash
-dotnet add package Qourex.FasterWhisper.NET
+dotnet add package FasterWhisper.NET
 ```
 
 Or via the Package Manager Console:
 
 ```powershell
-Install-Package Qourex.FasterWhisper.NET
+Install-Package FasterWhisper.NET
 ```
 
 > [!NOTE]
@@ -928,7 +928,7 @@ docker run --gpus all -it your-whisper-app
 
 ## ⚖️ Downstream Licensing Obligations
 
-When deploying applications utilizing **Qourex.FasterWhisper.NET**, downstream developers must conform to the licenses of bundled and external dependencies:
+When deploying applications utilizing **FasterWhisper.NET**, downstream developers must conform to the licenses of bundled and external dependencies:
 
 1.  **Intel oneMKL (ISSL License):**
     The Windows NuGet packages bundle Intel MKL runtime binaries (`mkl_core.3.dll`, etc.) under the **Intel Simplified Software License (ISSL)** to ensure high-performance CPU execution out-of-the-box. Downstream commercial users must be aware that the ISSL contains active **reverse-engineering prohibitions** (Section 3). For environments where ISSL is restricted, consider running on Linux (which links dynamically to standard OpenBLAS) or compiling the Windows C++ wrapper without MKL.

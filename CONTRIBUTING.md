@@ -1,6 +1,6 @@
-# Contributing to Qourex.FasterWhisper.NET
+# Contributing to FasterWhisper.NET
 
-Thank you for your interest in contributing to Qourex.FasterWhisper.NET! This document
+Thank you for your interest in contributing to FasterWhisper.NET! This document
 provides guidelines for contributing to the project.
 
 ## How to Contribute

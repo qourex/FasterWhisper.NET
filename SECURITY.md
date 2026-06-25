@@ -8,7 +8,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Qourex.FasterWhisper.NET, please report it
+If you discover a security vulnerability in FasterWhisper.NET, please report it
 responsibly:
 
 1. **Do NOT** open a public GitHub issue for security vulnerabilities

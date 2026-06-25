@@ -8,13 +8,14 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     
     <!-- Package Metadata -->
-    <Title>Qourex.FasterWhisper.NET</Title>
+    <PackageId>FasterWhisper.NET</PackageId>
+    <Title>FasterWhisper.NET</Title>
     <Authors>Qourex</Authors>
     <Copyright>Copyright (c) 2026 Qourex</Copyright>
     <Description>High-performance port of faster-whisper to C# (.NET 8+), wrapping CTranslate2 for GPU (CUDA) and CPU execution. Features include automatic language detection, word-level timestamps, voice activity detection (Silero VAD), streaming transcription, temperature fallback, and multi-format audio support.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/qourex/fasterwhisper.net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/qourex/fasterwhisper.net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/qourex/FasterWhisper.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/qourex/FasterWhisper.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>whisper;speech-to-text;transcription;dotnet;csharp;ctranslate2;faster-whisper;speech-recognition;asr;voice-activity-detection;vad;silero-vad;streaming-transcription;onnxruntime;offline-speech-to-text;audio-processing;machine-learning;deep-learning;windows;linux;macos;cross-platform</PackageTags>
     <PackageReleaseNotes>See https://github.com/qourex/fasterwhisper.net/blob/main/CHANGELOG.md</PackageReleaseNotes>

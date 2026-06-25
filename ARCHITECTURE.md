@@ -1,6 +1,6 @@
 # Architecture
 
-> Technical architecture overview of **Qourex.FasterWhisper.NET** — a high-performance C#/.NET wrapper for OpenAI's Whisper speech recognition model, powered by [CTranslate2](https://github.com/OpenNMT/CTranslate2).
+> Technical architecture overview of **FasterWhisper.NET** — a high-performance C#/.NET wrapper for OpenAI's Whisper speech recognition model, powered by [CTranslate2](https://github.com/OpenNMT/CTranslate2).
 
 ## Layer Diagram
 

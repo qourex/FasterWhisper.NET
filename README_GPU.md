@@ -2,7 +2,7 @@
   <img src="social-card.png" alt="Qourex FasterWhisper.NET Banner" width="100%" />
 </p>
 
-# Qourex.FasterWhisper.NET.Gpu
+# FasterWhisper.NET.Gpu
 
 <p align="center">
   <strong>by <a href="https://qourex.com">Qourex</a></strong> — Bringing high-performance GPU-accelerated speech recognition to .NET
@@ -10,17 +10,17 @@
 
 <p align="center">
   <a href="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml"><img src="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg" alt="Build &amp; Test" /></a>
-  <a href="https://www.nuget.org/packages/Qourex.FasterWhisper.NET.Gpu"><img src="https://img.shields.io/nuget/v/Qourex.FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=NuGet" alt="NuGet"></a>
-  <a href="https://www.nuget.org/packages/Qourex.FasterWhisper.NET.Gpu"><img src="https://img.shields.io/nuget/dt/Qourex.FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=Downloads" alt="NuGet Downloads"></a>
+  <a href="https://www.nuget.org/packages/FasterWhisper.NET.Gpu"><img src="https://img.shields.io/nuget/v/FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=NuGet" alt="NuGet"></a>
+  <a href="https://www.nuget.org/packages/FasterWhisper.NET.Gpu"><img src="https://img.shields.io/nuget/dt/FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=Downloads" alt="NuGet Downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
   <a href="https://dotnet.microsoft.com"><img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet" alt=".NET"></a>
 </p>
 
 ---
 
-**Qourex.FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library [faster-whisper](https://github.com/SYSTRAN/faster-whisper). It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
+**FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library [faster-whisper](https://github.com/SYSTRAN/faster-whisper). It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
 
-For CPU-only execution without CUDA prerequisites, please use the base [Qourex.FasterWhisper.NET](https://www.nuget.org/packages/Qourex.FasterWhisper.NET) package.
+For CPU-only execution without CUDA prerequisites, please use the base [FasterWhisper.NET](https://www.nuget.org/packages/FasterWhisper.NET) package.
 
 ---
 
@@ -38,7 +38,7 @@ For CPU-only execution without CUDA prerequisites, please use the base [Qourex.F
 To install the GPU-enabled package:
 
 ```bash
-dotnet add package Qourex.FasterWhisper.NET.Gpu
+dotnet add package FasterWhisper.NET.Gpu
 ```
 
 ## 🚀 CUDA Prerequisites
