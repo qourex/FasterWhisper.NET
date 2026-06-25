@@ -35,8 +35,9 @@ cmake_install.cmake
 Makefile
 *.vcxproj.user
 
-# Native DLLs (packaged via build.ps1, not committed)
-src/Qourex.FasterWhisper.NET/runtimes/
+# Native DLLs (packaged via build.ps1, not committed, except win-x64 CPU built locally)
+src/Qourex.FasterWhisper.NET/runtimes/*
+!src/Qourex.FasterWhisper.NET/runtimes/win-x64/
 
 # OS files
 Thumbs.db

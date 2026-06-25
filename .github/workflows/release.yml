@@ -24,13 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: win
-            arch: x64
-            runner: windows-latest
-            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DOPENMP_RUNTIME=NONE -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
-            artifact_name: "native-win-x64"
-            binary_files: "qourex_fasterwhisper_native.dll,_deps/ctranslate2-build/ctranslate2.dll"
-
           - os: linux
             arch: x64
             runner: ubuntu-latest
@@ -135,18 +128,6 @@ jobs:
         }
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
         echo "TAG=$tag" >> $env:GITHUB_OUTPUT
-
-    # Clean existing win-x64 DLLs in CPU runtimes folder to overwrite them with the fresh builds
-    - name: Clean runtimes folders
-      run: |
-        rm -rf src/Qourex.FasterWhisper.NET/runtimes/win-x64/native/*
-
-    # Download all native libraries built from the build-native matrix jobs
-    - name: Download Win-x64 Native Binaries
-      uses: actions/download-artifact@v4
-      with:
-        name: native-win-x64
-        path: src/Qourex.FasterWhisper.NET/runtimes/win-x64/native
 
     - name: Download Linux-x64 Native Binaries
       uses: actions/download-artifact@v4
