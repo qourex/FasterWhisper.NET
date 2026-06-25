@@ -59,7 +59,7 @@ FasterWhisper.NET and Python's `faster-whisper` both leverage the high-performan
 | **Native Backend** | CTranslate2 C++ |
 | **License** | MIT |
 | **Target Frameworks** | .NET 8.0, .NET 9.0, .NET 10.0 |
-| **Supported OS** | Windows (x64), Linux (x64), macOS (x64, ARM64) |
+| **Supported OS** | Windows (x64), Linux (x64), macOS (x64, ARM64), Android (ARM64), iOS (ARM64) |
 | **Languages** | C#, C++, CUDA |
 
 ---
@@ -112,7 +112,7 @@ graph TD
 - **🌍 Language Detection** — Auto-detect from 99+ languages with confidence scores
 - **🎵 Audio Processing Pipeline** — RMS normalization, high-pass filtering, spectral noise gate, Lanczos resampler, multi-format WAV decoder (8/16/24/32-bit PCM, IEEE float, A-law, μ-law)
 - **🔧 Text Post-Processing** — Filler word filtering, stutter pruning, context-conditioned decoding
-- **💻 Cross-Platform** — Native runtimes pre-compiled for Windows (win-x64), Linux (linux-x64), and macOS (osx-x64, osx-arm64 for Apple Silicon)
+- **💻 Cross-Platform** — Native runtimes compiled for Windows (win-x64), Linux (linux-x64), macOS (osx-x64, osx-arm64), Android (arm64), and iOS (arm64)
 - **📦 Multi-Target** — Out-of-the-box support for `.NET 8.0`, `.NET 9.0`, and `.NET 10.0`
 
 ---
@@ -170,7 +170,7 @@ Install-Package FasterWhisper.NET
 ```
 
 > [!NOTE]
-> The NuGet package ships with pre-compiled native binaries for **Windows (win-x64)**, **Linux (linux-x64)**, and **macOS (osx-x64, osx-arm64)** out of the box. For GPU acceleration, see [CUDA Prerequisites](#-cuda-prerequisites).
+> The NuGet package ships with pre-compiled native binaries for **Windows (win-x64)**, **Linux (linux-x64)**, **macOS (osx-x64, osx-arm64)**, **Android (arm64)**, and **iOS (arm64)** out of the box. For GPU acceleration, see [CUDA Prerequisites](#-cuda-prerequisites).
 
 ---
 
