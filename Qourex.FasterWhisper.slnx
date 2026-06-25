@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Qourex.FasterWhisper.NET.Samples/Qourex.FasterWhisper.NET.Samples.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj" />
+    <Project Path="src/Qourex.FasterWhisper.NET.Gpu/Qourex.FasterWhisper.NET.Gpu.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj" />
+  </Folder>
+</Solution>

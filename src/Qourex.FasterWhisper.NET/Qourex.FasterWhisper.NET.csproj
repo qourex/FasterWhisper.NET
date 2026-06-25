@@ -1,0 +1,51 @@
+<!-- Copyright (c) 2026 Qourex. Licensed under the MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    
+    <!-- Package Metadata -->
+    <Title>Qourex.FasterWhisper.NET</Title>
+    <Authors>Qourex</Authors>
+    <Copyright>Copyright (c) 2026 Qourex</Copyright>
+    <Description>High-performance port of faster-whisper to C# (.NET 8+), wrapping CTranslate2 for GPU (CUDA) and CPU execution. Features include automatic language detection, word-level timestamps, voice activity detection (Silero VAD), streaming transcription, temperature fallback, and multi-format audio support.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/qourex/fasterwhisper.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/qourex/fasterwhisper.net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>whisper;speech-to-text;transcription;ctranslate2;artificial-intelligence;cuda;machine-learning;speech;audio;vad;streaming;word-timestamps</PackageTags>
+    <PackageReleaseNotes>See https://github.com/qourex/fasterwhisper.net/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+
+    <!-- SourceLink and symbols -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include compiled native DLLs, SOs, and DYLIBs in the build output and NuGet package -->
+    <Content Include="runtimes\win-x64\native\*.dll" Link="runtimes\win-x64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes\win-x64\native\" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="runtimes\linux-x64\native\*.so" Link="runtimes\linux-x64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes\linux-x64\native\" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="runtimes\osx-x64\native\*.dylib" Link="runtimes\osx-x64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes\osx-x64\native\" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="runtimes\osx-arm64\native\*.dylib" Link="runtimes\osx-arm64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes\osx-arm64\native\" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Include local README in nuget pack -->
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../THIRD_PARTY_NOTICES.md" Pack="true" PackagePath="" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="" />
+    <None Include="../../NOTICE" Pack="true" PackagePath="" />
+    <None Include="icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

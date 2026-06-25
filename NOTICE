@@ -1,0 +1,22 @@
+Qourex.FasterWhisper.NET
+Copyright (c) 2026 Qourex
+
+This product includes software developed by the following third parties:
+
+- CTranslate2 — Copyright (c) OpenNMT. Licensed under MIT License.
+  https://github.com/OpenNMT/CTranslate2
+
+- Silero VAD — Copyright (c) Silero Team. Licensed under MIT License.
+  https://github.com/snakers4/silero-vad
+
+- Whisper — Copyright (c) OpenAI. Licensed under MIT License.
+  https://github.com/openai/whisper
+
+- faster-whisper — Copyright (c) SYSTRAN. Licensed under MIT License.
+  https://github.com/SYSTRAN/faster-whisper
+
+- ONNX Runtime — Copyright (c) Microsoft Corporation. Licensed under MIT License.
+  https://github.com/microsoft/onnxruntime
+
+- Intel oneAPI Math Kernel Library (oneMKL), OpenMP Runtime, and Compiler Runtimes — Copyright (c) Intel Corporation. Licensed under Intel Simplified Software License.
+  https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html

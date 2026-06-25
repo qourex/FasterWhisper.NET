@@ -1,0 +1,201 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.0.0)'
+        required: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # =========================================================================
+  # JOB 1: Build Native C++ Wrapper for Windows, Linux, and macOS
+  # =========================================================================
+  build-native:
+    name: Build Native (${{ matrix.os }} - ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: win
+            arch: x64
+            runner: windows-latest
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF"
+            artifact_name: "native-win-x64"
+            binary_files: "qourex_fasterwhisper_native.dll,_deps/ctranslate2-build/ctranslate2.dll"
+
+          - os: linux
+            arch: x64
+            runner: ubuntu-latest
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DWITH_OPENBLAS=ON -DOPENMP_RUNTIME=COMP"
+            artifact_name: "native-linux-x64"
+            binary_files: "qourex_fasterwhisper_native.so,_deps/ctranslate2-build/libctranslate2.so"
+
+          - os: osx
+            arch: x64
+            runner: macos-13 # Intel Mac runner
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64"
+            artifact_name: "native-osx-x64"
+            binary_files: "qourex_fasterwhisper_native.dylib,_deps/ctranslate2-build/libctranslate2.dylib"
+
+          - os: osx
+            arch: arm64
+            runner: macos-latest # Apple Silicon Mac runner
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_OSX_ARCHITECTURES=arm64"
+            artifact_name: "native-osx-arm64"
+            binary_files: "qourex_fasterwhisper_native.dylib,_deps/ctranslate2-build/libctranslate2.dylib"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install System Dependencies (Linux)
+      if: matrix.os == 'linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential libopenblas-dev
+
+    - name: Configure CMake
+      run: |
+        mkdir native_build
+        cd native_build
+        cmake ../src/Qourex.FasterWhisper.Native -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flags }}
+
+    - name: Build Shared Libraries
+      run: |
+        cd native_build
+        cmake --build . --config Release
+
+    - name: Stage Native Artifacts
+      shell: pwsh
+      run: |
+        mkdir staged_binaries
+        $files = "${{ matrix.binary_files }}".Split(",")
+        foreach ($file in $files) {
+          $sourcePath = Join-Path "native_build" $file
+          if (Test-Path $sourcePath) {
+            Copy-Item -Path $sourcePath -Destination "staged_binaries" -Force
+          } else {
+            throw "Required binary file not found: $sourcePath"
+          }
+        }
+
+    - name: Upload Native Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: staged_binaries/
+        retention-days: 1
+
+  # =========================================================================
+  # JOB 2: Pack and Publish Multi-Platform NuGet Package
+  # =========================================================================
+  pack-and-publish:
+    name: Package & Publish NuGet
+    needs: build-native
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+
+    - name: Extract Release Version
+      id: version
+      shell: pwsh
+      run: |
+        if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+          $ver = '${{ github.event.inputs.version }}'
+        } else {
+          $ver = '${{ github.ref_name }}' -replace '^v', ''
+        }
+        echo "VERSION=$ver" >> $env:GITHUB_OUTPUT
+
+    # Clean existing win-x64 DLLs in CPU runtimes folder to overwrite them with the fresh builds
+    - name: Clean runtimes folders
+      run: |
+        rm -rf src/Qourex.FasterWhisper.NET/runtimes/win-x64/native/*
+
+    # Download all native libraries built from the build-native matrix jobs
+    - name: Download Win-x64 Native Binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: native-win-x64
+        path: src/Qourex.FasterWhisper.NET/runtimes/win-x64/native
+
+    - name: Download Linux-x64 Native Binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: native-linux-x64
+        path: src/Qourex.FasterWhisper.NET/runtimes/linux-x64/native
+
+    - name: Download OSX-x64 Native Binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: native-osx-x64
+        path: src/Qourex.FasterWhisper.NET/runtimes/osx-x64/native
+
+    - name: Download OSX-Arm64 Native Binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: native-osx-arm64
+        path: src/Qourex.FasterWhisper.NET/runtimes/osx-arm64/native
+
+    - name: Restore dependencies
+      run: dotnet restore Qourex.FasterWhisper.slnx
+
+    - name: Build Managed Assemblies
+      run: dotnet build Qourex.FasterWhisper.slnx -c Release --no-restore /p:Version=${{ steps.version.outputs.VERSION }}
+
+    - name: Run unit tests
+      run: dotnet test tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release --no-build --filter "Category!=Integration"
+
+    - name: Pack Cross-Platform NuGet (CPU)
+      run: dotnet pack src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release --no-build /p:Version=${{ steps.version.outputs.VERSION }} -o ./artifacts
+
+    # Note: GPU version packs the committed Windows and Linux CUDA binaries from its runtimes directory
+    - name: Pack GPU NuGet (Windows & Linux CUDA)
+      run: |
+        cp README_GPU.md src/Qourex.FasterWhisper.NET.Gpu/README.md
+        cp THIRD_PARTY_NOTICES.md src/Qourex.FasterWhisper.NET.Gpu/
+        cp CHANGELOG.md src/Qourex.FasterWhisper.NET.Gpu/
+        dotnet pack src/Qourex.FasterWhisper.NET.Gpu/Qourex.FasterWhisper.NET.Gpu.csproj -c Release --no-build /p:Version=${{ steps.version.outputs.VERSION }} -o ./artifacts
+
+    - name: NuGet login (OIDC)
+      uses: nuget/login@v1
+      with:
+        nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+
+    - name: Push to NuGet
+      run: dotnet nuget push "./artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+    - name: Push symbols
+      run: dotnet nuget push "./artifacts/*.snupkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
+      continue-on-error: true
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        generate_release_notes: true
+        files: |
+          ./artifacts/*.nupkg
+          ./artifacts/*.snupkg

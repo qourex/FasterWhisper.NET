@@ -1,0 +1,28 @@
+<!-- Copyright (c) 2026 Qourex. Licensed under the MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <UseGpuTest Condition="'$(UseGpuTest)' == ''">false</UseGpuTest>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseGpuTest)' == 'true'">
+    <ProjectReference Include="..\..\src\Qourex.FasterWhisper.NET.Gpu\Qourex.FasterWhisper.NET.Gpu.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseGpuTest)' != 'true'">
+    <ProjectReference Include="..\..\src\Qourex.FasterWhisper.NET\Qourex.FasterWhisper.NET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="harvard.wav" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="harvard2.wav" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

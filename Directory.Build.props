@@ -1,0 +1,33 @@
+<!-- Copyright (c) 2026 Qourex. Licensed under the MIT License. -->
+<Project>
+  <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditLevel>low</NuGetAuditLevel>
+
+    <!-- SourceLink conditional activation based on Git repository existence -->
+    <GitRepoExists Condition="Exists('$(MSBuildThisFileDirectory).git')">true</GitRepoExists>
+    <GitRepoExists Condition="!Exists('$(MSBuildThisFileDirectory).git')">false</GitRepoExists>
+    
+    <PublishRepositoryUrl Condition="'$(GitRepoExists)' == 'true'">true</PublishRepositoryUrl>
+    <PublishRepositoryUrl Condition="'$(GitRepoExists)' != 'true'">false</PublishRepositoryUrl>
+    
+    <SourceControlInformationFeatureSupported Condition="'$(GitRepoExists)' == 'true'">true</SourceControlInformationFeatureSupported>
+    <SourceControlInformationFeatureSupported Condition="'$(GitRepoExists)' != 'true'">false</SourceControlInformationFeatureSupported>
+    
+    <EnableSourceControlManagerQueries Condition="'$(GitRepoExists)' == 'true'">true</EnableSourceControlManagerQueries>
+    <EnableSourceControlManagerQueries Condition="'$(GitRepoExists)' != 'true'">false</EnableSourceControlManagerQueries>
+    
+    <SourceLinkEnabled Condition="'$(GitRepoExists)' == 'true'">true</SourceLinkEnabled>
+    <SourceLinkEnabled Condition="'$(GitRepoExists)' != 'true'">false</SourceLinkEnabled>
+    
+    <EnableSourceLink Condition="'$(GitRepoExists)' == 'true'">true</EnableSourceLink>
+    <EnableSourceLink Condition="'$(GitRepoExists)' != 'true'">false</EnableSourceLink>
+  </PropertyGroup>
+</Project>

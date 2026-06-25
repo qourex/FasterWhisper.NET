@@ -1,0 +1,75 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+
+# .NET
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+*.nuget.props
+*.nuget.targets
+
+# Visual Studio
+.vs/
+*.rsuser
+*.sln.docstates
+launchSettings.json
+
+# CMake / C++ build
+src/Qourex.FasterWhisper.Native/build*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.vcxproj.user
+
+# Native DLLs (packaged via build.ps1, not committed)
+src/Qourex.FasterWhisper.NET/runtimes/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
+
+# IDE
+.idea/
+*.code-workspace
+
+# Test results
+TestResults/
+*.trx
+
+# Debug files
+debug_log.txt
+
+# User-specific
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Model cache (downloaded at runtime)
+.cache/
+
+# Code coverage
+**/coverage.cobertura.xml
+**/TestResults/
+
+# Debug artifacts
+debug_log.txt
