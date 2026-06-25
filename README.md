@@ -1,20 +1,14 @@
-<p align="center">
-  <img src="social-card.png" alt="Qourex FasterWhisper.NET Banner" width="100%" />
-</p>
+![FasterWhisper.NET Banner](social-card.png)
 
 # FasterWhisper.NET
 
-<p align="center">
-  <strong>by <a href="https://qourex.com">Qourex</a></strong> — Bringing high-performance speech recognition to .NET
-</p>
+**by [Qourex](https://qourex.com)** — Bringing high-performance speech recognition to .NET
 
-<p align="center">
-  <a href="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml"><img src="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg" alt="Build &amp; Test" /></a>
-  <a href="https://www.nuget.org/packages/FasterWhisper.NET"><img src="https://img.shields.io/nuget/v/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=NuGet" alt="NuGet"></a>
-  <a href="https://www.nuget.org/packages/FasterWhisper.NET"><img src="https://img.shields.io/nuget/dt/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=Downloads" alt="NuGet Downloads"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="https://dotnet.microsoft.com"><img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet" alt=".NET"></a>
-</p>
+[![Build & Test](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg)](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml)
+[![NuGet](https://img.shields.io/nuget/v/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=NuGet)](https://www.nuget.org/packages/FasterWhisper.NET)
+[![Downloads](https://img.shields.io/nuget/dt/FasterWhisper.NET.svg?style=flat-square&logo=nuget&label=Downloads)](https://www.nuget.org/packages/FasterWhisper.NET)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 
 ---
 
