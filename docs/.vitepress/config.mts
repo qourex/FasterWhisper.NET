@@ -51,6 +51,7 @@ export default defineConfig({
     logo: 'https://raw.githubusercontent.com/qourex/FasterWhisper.NET/main/src/Qourex.FasterWhisper.NET/icon.png',
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
+      { text: 'Advanced', link: '/guide/advanced-features' },
       { text: 'Samples', link: '/guide/samples' },
       { text: 'Mobile Deployment', link: '/guide/mobile-deployment' },
       { text: 'NuGet', link: 'https://www.nuget.org/packages/FasterWhisper.NET' }
@@ -61,6 +62,12 @@ export default defineConfig({
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Available Models', link: '/guide/getting-started#available-models' }
+        ]
+      },
+      {
+        text: 'Features & API',
+        items: [
+          { text: 'Advanced Usage', link: '/guide/advanced-features' }
         ]
       },
       {
