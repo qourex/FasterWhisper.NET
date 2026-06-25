@@ -27,7 +27,7 @@ jobs:
           - os: win
             arch: x64
             runner: windows-latest
-            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+            cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DOPENMP_RUNTIME=NONE -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             artifact_name: "native-win-x64"
             binary_files: "qourex_fasterwhisper_native.dll,_deps/ctranslate2-build/ctranslate2.dll"
 
@@ -40,7 +40,7 @@ jobs:
 
           - os: osx
             arch: x64
-            runner: macos-13 # Intel Mac runner
+            runner: macos-15-intel # Intel Mac runner
             cmake_flags: "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64 -DOPENMP_RUNTIME=NONE -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             artifact_name: "native-osx-x64"
             binary_files: "qourex_fasterwhisper_native.dylib,_deps/ctranslate2-build/libctranslate2.dylib"
