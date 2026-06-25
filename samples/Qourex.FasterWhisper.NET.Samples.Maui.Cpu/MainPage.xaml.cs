@@ -1,13 +1,13 @@
 // Copyright (c) 2026 Qourex. Licensed under the MIT License.
 
 using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Collections.ObjectModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using Qourex.FasterWhisper.NET;
-using System.Diagnostics;
 
 namespace Qourex.FasterWhisper.NET.Samples.Maui.Cpu
 {
@@ -16,7 +16,7 @@ namespace Qourex.FasterWhisper.NET.Samples.Maui.Cpu
         public ObservableCollection<SegmentModel> Segments { get; } = new();
         private string _selectedAudioPath = "harvard.wav";
         private string? _pickedFilePath;
-        
+
         private WhisperModel? _model;
         private string? _currentModelName;
 

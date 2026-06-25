@@ -117,7 +117,7 @@ public class WhisperService : IDisposable
 
         _logger.LogInformation("Reading WAV audio...");
         var audioProcessor = new AudioProcessor(_model.NMels);
-        
+
         // LoadWav is synchronous, run it on a thread pool thread
         float[] pcm = await Task.Run(() => audioProcessor.LoadWav(wavFilePath));
 

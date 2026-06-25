@@ -1,9 +1,9 @@
-﻿namespace Qourex.FasterWhisper.NET.Samples.Maui.Cpu;
+namespace Qourex.FasterWhisper.NET.Samples.Maui.Cpu;
 
 public partial class AppShell : Shell
 {
-	public AppShell()
-	{
-		InitializeComponent();
-	}
+    public AppShell()
+    {
+        InitializeComponent();
+    }
 }

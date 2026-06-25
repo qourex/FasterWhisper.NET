@@ -180,7 +180,7 @@ namespace Qourex.FasterWhisper.NET
                     {
                         isAbbreviation = true;
                     }
-                    if (c == '.' && i >= 2 && text[i - 1] == '.' )
+                    if (c == '.' && i >= 2 && text[i - 1] == '.')
                     {
                         isAbbreviation = true; // Ellipsis
                     }
@@ -218,16 +218,16 @@ namespace Qourex.FasterWhisper.NET
                 AvgLogProb = seg.AvgLogProb,
                 CompressionRatio = seg.CompressionRatio,
                 Confidence = seg.Confidence,
-                Words = seg.Words != null 
-                    ? seg.Words.Select(w => new WhisperWord 
-                      { 
-                          Word = w.Word, 
-                          Start = w.Start, 
-                          End = w.End, 
-                          Probability = w.Probability,
-                          Confidence = w.Confidence,
-                          IsLowConfidence = w.IsLowConfidence
-                      }).ToList() 
+                Words = seg.Words != null
+                    ? seg.Words.Select(w => new WhisperWord
+                    {
+                        Word = w.Word,
+                        Start = w.Start,
+                        End = w.End,
+                        Probability = w.Probability,
+                        Confidence = w.Confidence,
+                        IsLowConfidence = w.IsLowConfidence
+                    }).ToList()
                     : new List<WhisperWord>()
             };
             return clone;

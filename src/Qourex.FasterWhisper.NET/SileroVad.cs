@@ -149,7 +149,7 @@ namespace Qourex.FasterWhisper.NET
             // Outputs:
             // "output" -> [1, 1]
             // "stateN" -> [2, 1, 128] (next state)
-            
+
             // Get state dimensions dynamically
             var stateInput = _session.InputMetadata.FirstOrDefault(x => x.Key.Contains("state")).Value;
             _stateInputName = stateInput != null ? _session.InputMetadata.First(x => x.Key.Contains("state")).Key : "state";
@@ -219,7 +219,7 @@ namespace Qourex.FasterWhisper.NET
                 _audioTensor = new DenseTensor<float>(_inputBuffer, new int[] { 1, requiredInputLength });
                 _srTensor = new DenseTensor<long>(new long[] { sampleRate }, new int[0]);
                 _stateTensor = new DenseTensor<float>(_stateBuffer, _stateShape);
-                
+
                 _onnxInputs = new NamedOnnxValue[]
                 {
                     NamedOnnxValue.CreateFromTensor("input", _audioTensor),

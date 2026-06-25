@@ -53,7 +53,7 @@ namespace Qourex.FasterWhisper.NET.Tests
 
             // 7 = "hello", 8 = "Ġworld"
             string decoded = tokenizer.Decode(new[] { 7, 8 });
-            
+
             // "Ġ" should be decoded back to a space character " "
             Assert.Equal("hello world", decoded);
         }

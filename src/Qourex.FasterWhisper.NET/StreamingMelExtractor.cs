@@ -174,13 +174,13 @@ namespace Qourex.FasterWhisper.NET
 
             // 1. Extract and window samples: frame[i] = sample * hannWindow[i]
             int startIdx = (_writePos - _fftSize + _slidingWindow.Length) % _slidingWindow.Length;
-            
+
             Array.Clear(_fftReal, 0, FFTSize);
             Array.Clear(_fftImag, 0, FFTSize);
-            
+
             int vecSize2 = Vector<float>.Count;
             int wi = 0;
-            
+
             // Copy circular buffer to linear stackalloc array for vectorization
             Span<float> frame = stackalloc float[_fftSize];
             for (int i = 0; i < _fftSize; i++)

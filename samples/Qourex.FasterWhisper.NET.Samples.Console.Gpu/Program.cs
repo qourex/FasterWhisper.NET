@@ -12,10 +12,10 @@ namespace Qourex.FasterWhisper.NET.Samples.Console.Gpu
         static async Task Main(string[] args)
         {
             System.Console.WriteLine("=== FasterWhisper.NET GPU Console Sample ===");
-            
+
             string modelName = "tiny";
             string audioPath = Path.Combine(AppContext.BaseDirectory, "harvard.wav");
-            
+
             if (!File.Exists(audioPath))
             {
                 System.Console.WriteLine($"Error: Audio file not found at {audioPath}");
@@ -65,7 +65,7 @@ namespace Qourex.FasterWhisper.NET.Samples.Console.Gpu
                 System.Console.WriteLine($"[{TimeSpan.FromSeconds(segment.Start):hh\\:mm\\:ss\\.fff} -> {TimeSpan.FromSeconds(segment.End):hh\\:mm\\:ss\\.fff}] {segment.Text}");
             }
             System.Console.WriteLine("------------------\n");
-            
+
             System.Console.WriteLine("Finished successfully.");
         }
     }

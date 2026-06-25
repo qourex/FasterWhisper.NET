@@ -22,12 +22,12 @@ namespace Qourex.FasterWhisper.NET.Tests
         public async Task WarmUp_RunsSuccessfully()
         {
             using var model = await WhisperModel.LoadAsync("tiny", device: "cpu");
-            
+
             // Measure warm-up time
             var watch = System.Diagnostics.Stopwatch.StartNew();
             model.WarmUp();
             watch.Stop();
-            
+
             // First actual transcription after warm-up
             float[] silence = new float[16000]; // 1 second of silence
             watch.Restart();

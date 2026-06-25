@@ -11,10 +11,10 @@ namespace Qourex.FasterWhisper.NET.Samples.WinForms.Cpu
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            
+
             // Enable official .NET 9/10 WinForms Dark Mode
             Application.SetColorMode(SystemColorMode.Dark);
-            
+
             Application.Run(new MainForm());
         }
     }

@@ -58,9 +58,9 @@ namespace Qourex.FasterWhisper.NET
             // Read RIFF Header
             if (new string(reader.ReadChars(4)) != "RIFF")
                 throw new InvalidDataException("Not a valid RIFF file.");
-            
+
             reader.ReadInt32(); // File size
-            
+
             if (new string(reader.ReadChars(4)) != "WAVE")
                 throw new InvalidDataException("Not a valid WAVE file.");
 
@@ -83,7 +83,7 @@ namespace Qourex.FasterWhisper.NET
                     reader.ReadInt32(); // Byte rate
                     reader.ReadInt16(); // Block align
                     bitsPerSample = reader.ReadInt16();
-                    
+
                     if (chunkSize > 16)
                     {
                         fs.Seek(chunkSize - 16, SeekOrigin.Current);
@@ -522,9 +522,9 @@ namespace Qourex.FasterWhisper.NET
 
             float rms = (float)Math.Sqrt(sum / samples.Length);
             if (rms < 1e-5f) return; // avoid division by zero or extremely quiet noise amplification
-            
+
             float gain = targetRms / rms;
-            
+
             // Limit gain to a reasonable amount (e.g. max 10.0x boost) to avoid boosting silence hiss
             if (gain > 10.0f) gain = 10.0f;
 
@@ -658,7 +658,7 @@ namespace Qourex.FasterWhisper.NET
             };
 
             using var process = new System.Diagnostics.Process { StartInfo = startInfo };
-            
+
             try
             {
                 process.Start();
@@ -672,7 +672,7 @@ namespace Qourex.FasterWhisper.NET
             using var stdout = process.StandardOutput.BaseStream;
             byte[] buffer = new byte[4096];
             int bytesRead;
-            
+
             while ((bytesRead = stdout.Read(buffer, 0, buffer.Length)) > 0)
             {
                 int sampleCount = bytesRead / 4;

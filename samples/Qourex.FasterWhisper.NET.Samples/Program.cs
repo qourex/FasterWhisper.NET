@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using Qourex.FasterWhisper.NET;
 
 namespace Qourex.FasterWhisper.NET.Samples
@@ -214,12 +214,12 @@ namespace Qourex.FasterWhisper.NET.Samples
                     Enabled = true,                     // Split into natural phrases to avoid long-context drift on tiny
                     Threshold = 0.5f
                 };
- 
+
                 var transcriptionProgress = new Progress<TranscriptionProgress>(p =>
                 {
                     Console.Write($"\r    [Progress] {p.Percent:F1}% ({p.CurrentSeconds:F1}s / {p.TotalSeconds:F1}s)");
                 });
- 
+
                 // Attach segment decoded callback (E-18)
                 model.OnSegmentDecoded += OnSegmentDecodedHandler;
 
@@ -279,7 +279,7 @@ namespace Qourex.FasterWhisper.NET.Samples
                 {
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine($"  Segment #{seg.Id} (Seek: {seg.Seek} frames, Temp: {seg.Temperature:F2})");
-                    
+
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine($"    Hallucination Score: {seg.HallucinationScore:F3} (IsHallucinated={seg.HallucinationScore > 0.7})");
 
@@ -553,7 +553,7 @@ namespace Qourex.FasterWhisper.NET.Samples
         static async Task RunBenchmarkAsync(string device, string modelName, string inputAudioPath)
         {
             PrintSection("RUNNING SDK PERFORMANCE & RESOURCE BENCHMARK");
-            
+
             // Baseline memory
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -563,11 +563,11 @@ namespace Qourex.FasterWhisper.NET.Samples
             PrintInfo($"Baseline CPU RAM: {baseCpuRam / (1024.0 * 1024.0):F1} MB");
             if (baseGpuVram >= 0)
                 PrintInfo($"Baseline GPU VRAM: {baseGpuVram / (1024.0 * 1024.0):F1} MB");
-            
+
             PrintInfo($"Downloading/Resolving model '{modelName}'...");
             var downloader = new ModelDownloader();
             string modelPath = await downloader.GetModelPathAsync(modelName);
-            
+
             // Audio data
             string audioPath = inputAudioPath;
             if (!File.Exists(audioPath))
@@ -609,13 +609,13 @@ namespace Qourex.FasterWhisper.NET.Samples
             // PHASE 1: Model Startup & Memory Mapping Benchmark
             // ═══════════════════════════════════════════════════════════════
             PrintSubHeader("Phase 1: Startup Time & Model Memory Footprint (Standard vs Memory-Mapped)");
-            
+
             // 1. Standard (Without Memory Mapping)
             GC.Collect();
             GC.WaitForPendingFinalizers();
             long preStdCpu = Process.GetCurrentProcess().WorkingSet64;
             long preStdGpu = GetGpuMemoryUsed();
-            
+
             var swLoadStd = System.Diagnostics.Stopwatch.StartNew();
             var modelStd = WhisperModelBuilder.Create(modelPath)
                 .WithDevice(device)
@@ -623,20 +623,20 @@ namespace Qourex.FasterWhisper.NET.Samples
                 .Build();
             swLoadStd.Stop();
             double loadTimeStdMs = swLoadStd.Elapsed.TotalMilliseconds;
-            
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
             long postStdCpu = Process.GetCurrentProcess().WorkingSet64;
             long postStdGpu = GetGpuMemoryUsed();
-            
+
             double ramStdMb = (postStdCpu - preStdCpu) / (1024.0 * 1024.0);
             double vramStdMb = preStdGpu >= 0 ? (postStdGpu - preStdGpu) / (1024.0 * 1024.0) : 0;
-            
+
             PrintSuccess($"[Standard] Model loaded in {loadTimeStdMs:F1} ms");
             PrintSuccess($"[Standard] RAM Delta: {ramStdMb:F1} MB");
             if (preStdGpu >= 0)
                 PrintSuccess($"[Standard] VRAM Delta: {vramStdMb:F1} MB");
-            
+
             modelStd.Dispose();
             Console.WriteLine();
 
@@ -645,7 +645,7 @@ namespace Qourex.FasterWhisper.NET.Samples
             GC.WaitForPendingFinalizers();
             long preMmapCpu = Process.GetCurrentProcess().WorkingSet64;
             long preMmapGpu = GetGpuMemoryUsed();
-            
+
             var swLoadMmap = System.Diagnostics.Stopwatch.StartNew();
             var modelMmap = WhisperModelBuilder.Create(modelPath)
                 .WithDevice(device)
@@ -654,20 +654,20 @@ namespace Qourex.FasterWhisper.NET.Samples
                 .Build();
             swLoadMmap.Stop();
             double loadTimeMmapMs = swLoadMmap.Elapsed.TotalMilliseconds;
-            
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
             long postMmapCpu = Process.GetCurrentProcess().WorkingSet64;
             long postMmapGpu = GetGpuMemoryUsed();
-            
+
             double ramMmapMb = (postMmapCpu - preMmapCpu) / (1024.0 * 1024.0);
             double vramMmapMb = preMmapGpu >= 0 ? (postMmapGpu - preMmapGpu) / (1024.0 * 1024.0) : 0;
-            
+
             PrintSuccess($"[Memory-Mapped] Model loaded in {loadTimeMmapMs:F1} ms");
             PrintSuccess($"[Memory-Mapped] RAM Delta: {ramMmapMb:F1} MB");
             if (preMmapGpu >= 0)
                 PrintSuccess($"[Memory-Mapped] VRAM Delta: {vramMmapMb:F1} MB");
-            
+
             modelMmap.Dispose();
             Console.WriteLine();
 
@@ -675,16 +675,16 @@ namespace Qourex.FasterWhisper.NET.Samples
             // PHASE 2: Replica Scaling & Shared Memory Footprint (1 vs 2 vs 4)
             // ═══════════════════════════════════════════════════════════════
             PrintSubHeader("Phase 2: Multi-Replica VRAM/RAM Scaling (Architectural Shared Weights)");
-            
+
             var replicaMetrics = new List<(int Replicas, double LoadTimeMs, double RamMb, double VramMb)>();
-            
+
             foreach (int reps in new[] { 1, 2, 4 })
             {
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 long preLoadCpu = Process.GetCurrentProcess().WorkingSet64;
                 long preLoadGpu = GetGpuMemoryUsed();
-                
+
                 var sw = System.Diagnostics.Stopwatch.StartNew();
                 var modelRep = WhisperModelBuilder.Create(modelPath)
                     .WithDevice(device)
@@ -692,18 +692,18 @@ namespace Qourex.FasterWhisper.NET.Samples
                     .WithMemoryMapping()
                     .Build();
                 sw.Stop();
-                
+
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 long postLoadCpu = Process.GetCurrentProcess().WorkingSet64;
                 long postLoadGpu = GetGpuMemoryUsed();
-                
+
                 double ramUsed = (postLoadCpu - preLoadCpu) / (1024.0 * 1024.0);
                 double vramUsed = preLoadGpu >= 0 ? (postLoadGpu - preLoadGpu) / (1024.0 * 1024.0) : 0;
-                
+
                 replicaMetrics.Add((reps, sw.Elapsed.TotalMilliseconds, ramUsed, vramUsed));
                 PrintInfo($"NumReplicas = {reps}: Load Time = {sw.Elapsed.TotalMilliseconds:F1} ms | CPU RAM = {ramUsed:F1} MB {(preLoadGpu >= 0 ? $"| GPU VRAM = {vramUsed:F1} MB" : "")}");
-                
+
                 modelRep.Dispose();
             }
             Console.WriteLine();
@@ -712,10 +712,10 @@ namespace Qourex.FasterWhisper.NET.Samples
             // PHASE 3: Execution Performance & Throughput
             // ═══════════════════════════════════════════════════════════════
             PrintSubHeader("Phase 3: Quantization & Speedups (RTF)");
-            
+
             double defaultTime = 0, defaultRtf = 0;
             double int8Time = 0, int8Rtf = 0;
-            
+
             using (var modelDefault = WhisperModelBuilder.Create(modelPath).WithDevice(device).WithComputeType("default").WithMemoryMapping().Build())
             {
                 modelDefault.WarmUp();
@@ -773,11 +773,11 @@ namespace Qourex.FasterWhisper.NET.Samples
             // ═══════════════════════════════════════════════════════════════
             PrintSubHeader("Phase 5: Batched Inference Pipeline");
             double seqTime = 0, batchedTime = 0;
-            
+
             using (var model = WhisperModelBuilder.Create(modelPath).WithDevice(device).WithMemoryMapping().Build())
             {
                 model.WarmUp();
-                
+
                 var swSeq = System.Diagnostics.Stopwatch.StartNew();
                 var result1 = model.Transcribe(pcm).ToList();
                 var result2 = model.Transcribe(pcm).ToList();

@@ -45,9 +45,9 @@ namespace Qourex.FasterWhisper.NET.Tests
 
             // Check magnitudes
             float maxMag = 0;
-            for (int k = 0; k < fftSize/2+1; k++)
+            for (int k = 0; k < fftSize / 2 + 1; k++)
             {
-                float mag = (float)Math.Sqrt(r[k]*r[k] + im[k]*im[k]);
+                float mag = (float)Math.Sqrt(r[k] * r[k] + im[k] * im[k]);
                 if (mag > maxMag) maxMag = mag;
             }
             _output.WriteLine($"Max FFT magnitude: {maxMag:F4}");

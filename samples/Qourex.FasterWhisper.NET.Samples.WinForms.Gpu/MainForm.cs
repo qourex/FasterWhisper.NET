@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Qourex. Licensed under the MIT License.
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing;
 using Qourex.FasterWhisper.NET;
 
 namespace Qourex.FasterWhisper.NET.Samples.WinForms.Gpu
@@ -18,7 +18,7 @@ namespace Qourex.FasterWhisper.NET.Samples.WinForms.Gpu
         private ProgressBar _progressBar = null!;
         private Label _statusLabel = null!;
         private RichTextBox _outputBox = null!;
-        
+
         private WhisperModel? _model;
         private string? _currentModelName;
 
@@ -186,7 +186,7 @@ namespace Qourex.FasterWhisper.NET.Samples.WinForms.Gpu
             }
 
             string selectedModel = _modelCombo.SelectedItem?.ToString() ?? "tiny";
-            
+
             // Disable UI
             _transcribeBtn.Enabled = false;
             _browseBtn.Enabled = false;
@@ -271,7 +271,7 @@ namespace Qourex.FasterWhisper.NET.Samples.WinForms.Gpu
             foreach (var segment in segments)
             {
                 string timeStr = $"[{TimeSpan.FromSeconds(segment.Start):hh\\:mm\\:ss} -> {TimeSpan.FromSeconds(segment.End):hh\\:mm\\:ss}] ";
-                
+
                 // Color formatting for timestamps
                 _outputBox.SelectionStart = _outputBox.TextLength;
                 _outputBox.SelectionLength = 0;
