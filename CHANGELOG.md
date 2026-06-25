@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Documentation**: Created a complete, production-ready VitePress documentation site covering Getting Started, the .NET 10.0 sample suite, advanced mobile deployment, and an exhaustive API options reference.
+- **CI/CD**: Added a GitHub Actions workflow to automate building and deploying the documentation site to GitHub Pages.
 - **Testing**: Expanded xUnit test suite from 16 to 152 tests, adding comprehensive integration, performance, memory pooling, and edge-case test coverage
 - **Security**: Added SHA-256 integrity check for downloaded Silero VAD ONNX models
 - **Security**: Expanded ModelDownloader to verify SHA-256 hashes of all official Hugging Face models (tiny through large-v3)
