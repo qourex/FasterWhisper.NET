@@ -1,8 +1,8 @@
-# Qourex.FasterWhisper.NET.Gpu
-
 <p align="center">
-  <img src="logo.png" alt="Qourex Logo" width="120" />
+  <img src="social-card.png" alt="Qourex FasterWhisper.NET Banner" width="100%" />
 </p>
+
+# Qourex.FasterWhisper.NET.Gpu
 
 <p align="center">
   <strong>by <a href="https://qourex.com">Qourex</a></strong> — Bringing high-performance GPU-accelerated speech recognition to .NET
