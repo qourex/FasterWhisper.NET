@@ -1,0 +1,17 @@
+<!-- Copyright (c) 2026 Qourex. Licensed under the MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Authors>Qourex</Authors>
+    <Copyright>Copyright (c) 2026 Qourex</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FasterWhisper.NET.Gpu" Version="1.0.2" />
+  </ItemGroup>
+
+</Project>

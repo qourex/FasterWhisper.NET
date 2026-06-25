@@ -127,6 +127,7 @@ graph TD
 - [Features](#-features)
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
+- [Samples & Demos](#-samples--demos)
 - [Available Models](#-available-models)
 - [Performance Benchmarks](#-performance-benchmarks)
 - [Advanced Usage](#-advanced-usage)
@@ -216,6 +217,25 @@ foreach (var segment in segments)
     Console.WriteLine($"[{segment.Start:F2}s -> {segment.End:F2}s] {segment.Text}");
 }
 ```
+
+---
+
+## 💻 Samples & Demos
+
+A comprehensive suite of 10 sample applications targeting **.NET 10.0** is provided under the [samples/](file:///g:/Git-Repos/FasterWhisper/samples) directory to demonstrate various integration patterns.
+
+For detailed setup instructions, execution commands, and project catalogs, refer to the [Samples README](file:///g:/Git-Repos/FasterWhisper/samples/README.md).
+
+### Summary of Sample Projects
+
+*   **Console App (`Cpu` / `Gpu`)** — Lightweight command-line interface highlighting automatic model resolution, downloading progress, and audio transcription.
+*   **ASP.NET Core Minimal API (`Cpu` / `Gpu`)** — Thread-safe, non-reentrant service configuration demonstrating multi-replica execution exposed as a REST API (`POST /api/transcribe`).
+*   **Blazor Web App (`Cpu` / `Gpu`)** — Dark-themed interactive server dashboard featuring live downloading progress bars and visual segment timelines.
+*   **Windows Forms (`Cpu` / `Gpu`)** — Desktop applications utilizing native **.NET 10.0 WinForms Dark Mode** along with background thread model loading to maintain UI responsiveness.
+*   **MAUI App (`Cpu` / `Gpu`)** — Cross-platform application showcasing raw resource bundling and cross-platform WAV file picking.
+
+> [!NOTE]
+> All GPU samples utilize the `"default"` compute type to facilitate automatic runtime fallback between float16 and float32 based on host hardware support, preventing execution failures.
 
 ---
 
@@ -816,7 +836,19 @@ Qourex.FasterWhisper/
 │       ├── NativeMethods.cs           #   P/Invoke native interop layer
 │       └── Qourex.FasterWhisper.NET.csproj
 ├── samples/
-│   └── Qourex.FasterWhisper.NET.Samples/ # Console app feature demo
+│   ├── Qourex.FasterWhisper.NET.Samples/             # Legacy CLI benchmark tool
+│   ├── Qourex.FasterWhisper.NET.Samples.Console.Cpu/ # Console CPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.Console.Gpu/ # Console GPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.AspNetCore.Cpu/ # Minimal API CPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.AspNetCore.Gpu/ # Minimal API GPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.Blazor.Cpu/     # Blazor Web CPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.Blazor.Gpu/     # Blazor Web GPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.WinForms.Cpu/   # WinForms CPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.WinForms.Gpu/   # WinForms GPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.Maui.Cpu/       # MAUI CPU sample
+│   ├── Qourex.FasterWhisper.NET.Samples.Maui.Gpu/       # MAUI GPU sample
+│   ├── shared/                                          # Shared audio preset files
+│   └── README.md                                        # Samples documentation
 ├── tests/
 │   └── Qourex.FasterWhisper.NET.Tests/ # xUnit test suite
 ├── build.ps1                          # Automated build script
