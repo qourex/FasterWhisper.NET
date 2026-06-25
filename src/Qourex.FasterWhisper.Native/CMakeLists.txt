@@ -2,6 +2,10 @@
 # See LICENSE file in the project root for full license information.
 
 cmake_minimum_required(VERSION 3.18)
+
+# Prevent CMake 3.30+ deprecation errors for subprojects requiring CMake < 3.5 (e.g. cpu_features)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 project(qourex_fasterwhisper_native LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
