@@ -1,4 +1,4 @@
-![FasterWhisper.NET Banner](social-card.png)
+![FasterWhisper.NET Banner](https://raw.githubusercontent.com/qourex/FasterWhisper.NET/main/social-card.png)
 
 # FasterWhisper.NET.Gpu
 
