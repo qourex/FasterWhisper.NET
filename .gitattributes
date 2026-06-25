@@ -1,0 +1,16 @@
+# Set default behavior to automatic text detection and force LF line endings
+* text=auto eol=lf
+
+# Force specific text files to use LF line endings
+*.cs text eol=lf
+*.razor text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.csproj text eol=lf
+*.slnx text eol=lf
+*.editorconfig text eol=lf
+*.gitattributes text eol=lf
+*.sh text eol=lf
