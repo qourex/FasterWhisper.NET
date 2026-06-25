@@ -52,6 +52,7 @@ export default defineConfig({
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Advanced', link: '/guide/advanced-features' },
+      { text: 'API Reference', link: '/guide/api-reference' },
       { text: 'Samples', link: '/guide/samples' },
       { text: 'Mobile Deployment', link: '/guide/mobile-deployment' },
       { text: 'NuGet', link: 'https://www.nuget.org/packages/FasterWhisper.NET' }
@@ -67,7 +68,8 @@ export default defineConfig({
       {
         text: 'Features & API',
         items: [
-          { text: 'Advanced Usage', link: '/guide/advanced-features' }
+          { text: 'Advanced Usage', link: '/guide/advanced-features' },
+          { text: 'API Reference', link: '/guide/api-reference' }
         ]
       },
       {
