@@ -180,13 +180,13 @@ jobs:
       run: dotnet restore Qourex.FasterWhisper.slnx
 
     - name: Build Managed Assemblies
-      run: dotnet build Qourex.FasterWhisper.slnx -c Release /p:Version=${{ steps.version.outputs.VERSION }} /p:IncludeMobileTargets=true
+      run: dotnet build Qourex.FasterWhisper.slnx -c Release -p:Version=${{ steps.version.outputs.VERSION }} -p:IncludeMobileTargets=true
 
     - name: Run unit tests
       run: dotnet test tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release --no-build --filter "Category!=Integration"
 
     - name: Pack Cross-Platform NuGet (CPU)
-      run: dotnet pack src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release --no-build /p:Version=${{ steps.version.outputs.VERSION }} /p:IncludeMobileTargets=true -o ./artifacts
+      run: dotnet pack src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release --no-build -p:Version=${{ steps.version.outputs.VERSION }} -p:IncludeMobileTargets=true -o ./artifacts
 
     # Note: GPU version packs the committed Windows and Linux CUDA binaries from its runtimes directory
     - name: Pack GPU NuGet (Windows & Linux CUDA)
@@ -195,7 +195,7 @@ jobs:
         cp README_GPU.md src/Qourex.FasterWhisper.NET.Gpu/README.md
         cp THIRD_PARTY_NOTICES.md src/Qourex.FasterWhisper.NET.Gpu/
         cp CHANGELOG.md src/Qourex.FasterWhisper.NET.Gpu/
-        dotnet pack src/Qourex.FasterWhisper.NET.Gpu/Qourex.FasterWhisper.NET.Gpu.csproj -c Release --no-build /p:Version=${{ steps.version.outputs.VERSION }} /p:IncludeMobileTargets=true -o ./artifacts
+        dotnet pack src/Qourex.FasterWhisper.NET.Gpu/Qourex.FasterWhisper.NET.Gpu.csproj -c Release --no-build -p:Version=${{ steps.version.outputs.VERSION }} -p:IncludeMobileTargets=true -o ./artifacts
 
     - name: NuGet Login (OIDC Trusted Publishing)
       uses: NuGet/login@v1
