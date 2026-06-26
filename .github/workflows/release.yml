@@ -197,6 +197,13 @@ jobs:
         cp CHANGELOG.md src/Qourex.FasterWhisper.NET.Gpu/
         dotnet pack src/Qourex.FasterWhisper.NET.Gpu/Qourex.FasterWhisper.NET.Gpu.csproj -c Release --no-build -p:Version=${{ steps.version.outputs.VERSION }} -p:IncludeMobileTargets=true -o ./artifacts
 
+    - name: Clean platform version suffixes from NuGet packages
+      run: |
+        Get-ChildItem -Path artifacts/*.nupkg | ForEach-Object {
+          Write-Host "Running TFM cleanup on $_"
+          powershell -File scripts/cleanup_nupkg.ps1 $_.FullName
+        }
+
     - name: NuGet Login (OIDC Trusted Publishing)
       uses: NuGet/login@v1
       id: login
