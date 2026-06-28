@@ -84,15 +84,32 @@ function Build-Native-And-Stage($buildDir, $cudaEnabled, $csharpProjectDir) {
     try {
         $cudaFlags = ""
         if ($cudaEnabled) {
-            $cudaFlags = "-DWITH_CUDA=ON -DWITH_CUDNN=ON -DCMAKE_CUDA_ARCHITECTURES=`"53;60;61;70;75;80;86;86+PTX`""
+            $cudaFlags = "-DWITH_CUDA=ON -DWITH_CUDNN=ON -DCMAKE_CUDA_ARCHITECTURES=`"53;60;61;70;75;80;86;89;90;100;100+PTX`""
         } else {
             $cudaFlags = "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF"
         }
 
-        # Configure and build CMake using NMake and Visual Studio tools
+        # Configure and build CMake using Ninja and Visual Studio tools
         Write-Host "Using VS Dev Cmd: $VsDevCmd"
         Write-Host "Running CMake configuration and building DLL in: $buildDir"
-        $buildCmd = "call `"$VsDevCmd`" -arch=x64 && cmake .. -G `"NMake Makefiles`" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DOPENMP_RUNTIME=INTEL -DWITH_MKL=ON -DMKL_ROOT=`"C:\Program Files (x86)\Intel\oneAPI\mkl\latest`" -DWITH_DNNL=OFF $cudaFlags && cmake --build ."
+        
+        $ninjaPath = "ninja"
+        $vsNinjaPaths = @(
+            "C:\Program Files\Microsoft Visual Studio\18\Enterprise\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja\ninja.exe",
+            "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja\ninja.exe",
+            "C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja\ninja.exe",
+            "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja\ninja.exe",
+            "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja\ninja.exe"
+        )
+        foreach ($p in $vsNinjaPaths) {
+            if (Test-Path $p) {
+                $ninjaPath = $p
+                break
+            }
+        }
+        Write-Host "Using Ninja path: $ninjaPath"
+
+        $buildCmd = "call `"$VsDevCmd`" -arch=x64 && cmake .. -G `"Ninja`" -DCMAKE_MAKE_PROGRAM=`"$ninjaPath`" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DOPENMP_RUNTIME=INTEL -DWITH_MKL=ON -DMKL_ROOT=`"C:\Program Files (x86)\Intel\oneAPI\mkl\latest`" -DWITH_DNNL=OFF $cudaFlags && cmake --build ."
         cmd.exe /c $buildCmd
         
         if ($LASTEXITCODE -ne 0) {

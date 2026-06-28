@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Qourex.FasterWhisper.NET incorporates third-party software components. The following
+FasterWhisper.NET incorporates third-party software components. The following
 notices are provided for informational purposes and identify the third-party
 components used, along with their respective licenses.
 

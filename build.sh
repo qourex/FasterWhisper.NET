@@ -91,16 +91,34 @@ build_native_and_stage() {
   mkdir -p "$build_dir"
   pushd "$build_dir" > /dev/null
 
-  cmake_flags=""
+  cmake_flags=()
   if [ "$cuda_enabled" = true ]; then
-    cmake_flags="-DWITH_CUDA=ON -DWITH_CUDNN=ON -DWITH_MKL=OFF -DOPENMP_RUNTIME=COMP -DCMAKE_CUDA_ARCHITECTURES=\"53;60;61;70;75;80;86;86+PTX\""
+    cmake_flags=(
+      "-DWITH_CUDA=ON"
+      "-DWITH_CUDNN=ON"
+      "-DWITH_MKL=OFF"
+      "-DOPENMP_RUNTIME=COMP"
+    )
   else
-    cmake_flags="-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_MKL=OFF -DWITH_OPENBLAS=ON -DOPENMP_RUNTIME=COMP"
+    cmake_flags=(
+      "-DWITH_CUDA=OFF"
+      "-DWITH_CUDNN=OFF"
+      "-DWITH_MKL=OFF"
+      "-DWITH_OPENBLAS=ON"
+      "-DOPENMP_RUNTIME=COMP"
+    )
+  fi
+
+  # Check if ninja is available to compile fast in parallel
+  generator=""
+  if command -v ninja >/dev/null 2>&1; then
+    generator="-G Ninja"
+    echo "Using Ninja build generator for parallel compilation."
   fi
 
   # Run CMake configuration and build
   echo "Running CMake configuration in: $build_dir"
-  cmake "$NATIVE_DIR" -DCMAKE_BUILD_TYPE=Release $cmake_flags
+  cmake "$NATIVE_DIR" -DCMAKE_BUILD_TYPE=Release $generator "${cmake_flags[@]}"
   cmake --build . --config Release
 
   popd > /dev/null
@@ -122,8 +140,10 @@ build_native_and_stage() {
   # Copy CTranslate2 library
   local ct2_so="$build_dir/_deps/ctranslate2-build/libctranslate2.so"
   if [ -f "$ct2_so" ]; then
-    cp "$ct2_so" "$runtime_native_dir/"
-    echo "  Copied libctranslate2.so"
+    cp "$ct2_so" "$runtime_native_dir/libctranslate2.so"
+    cp "$ct2_so" "$runtime_native_dir/libctranslate2.so.4"
+    cp "$ct2_so" "$runtime_native_dir/libctranslate2.so.4.7.0"
+    echo "  Copied libctranslate2.so, libctranslate2.so.4, and libctranslate2.so.4.7.0"
   else
     echo "Error: libctranslate2.so not found at: $ct2_so"
     exit 1
