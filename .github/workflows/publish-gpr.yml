@@ -1,0 +1,59 @@
+name: Publish to GitHub Packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version tag (e.g. v1.0.0 or 1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Publish to GPR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Determine Release Tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            if [[ ! "$VERSION" =~ ^v ]]; then
+              TAG="v$VERSION"
+            else
+              TAG="$VERSION"
+            fi
+          else
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Download Release Assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p artifacts
+          gh release download ${{ steps.tag.outputs.TAG }} --pattern "*.nupkg" --dir artifacts
+
+      - name: Push to GitHub Packages
+        run: |
+          for f in artifacts/*.nupkg; do
+            [ -e "$f" ] || continue
+            echo "Pushing $f to GitHub Packages..."
+            dotnet nuget push "$f" --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
+          done
