@@ -12,7 +12,7 @@
 
 ---
 
-**FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library [faster-whisper](https://github.com/SYSTRAN/faster-whisper). It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
+**FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library faster-whisper. It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
 
 For CPU-only execution without CUDA prerequisites, please use the base [FasterWhisper.NET](https://www.nuget.org/packages/FasterWhisper.NET) package.
 
@@ -40,24 +40,24 @@ dotnet add package FasterWhisper.NET.Gpu
 To run this package with GPU acceleration (`device: "cuda"`), you must have the following NVIDIA runtimes installed and configured on your host system:
 
 ### Windows
-1. **NVIDIA CUDA Toolkit 12.x** — [CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 9.x** — [cuDNN Downloads](https://developer.nvidia.com/cudnn)
+1. **NVIDIA CUDA Toolkit 12.x (Compiled with 12.8)** — [CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
+2. **NVIDIA cuDNN 8.9.x** — [cuDNN Downloads Archive](https://developer.nvidia.com/cudnn-downloads-archive)
 
 Ensure that the following DLLs from these installations are available in your system `PATH`:
 - `cudart64_12.dll` (or other CUDA 12 runtime versions)
 - `cublas64_12.dll`
 - `cublasLt64_12.dll`
-- `cudnn64_9.dll`
+- `cudnn64_8.dll` (specifically cuDNN v8)
 
 ### Linux / WSL2
-1. **NVIDIA CUDA Toolkit 12.x** — [WSL/Linux CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 9.x** — [cuDNN Downloads](https://developer.nvidia.com/cudnn)
+1. **NVIDIA CUDA Toolkit 12.x (Compiled with 12.8)** — [WSL/Linux CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
+2. **NVIDIA cuDNN 8.9.x** — [cuDNN Downloads Archive](https://developer.nvidia.com/cudnn-downloads-archive)
 
 Ensure that the following shared libraries from these installations are available in your `LD_LIBRARY_PATH` or system library paths (e.g. `/usr/local/cuda/lib64`):
 - `libcudart.so.12`
 - `libcublas.so.12`
 - `libcublasLt.so.12`
-- `libcudnn.so.9`
+- `libcudnn.so.8` (specifically cuDNN v8)
 
 ---
 
@@ -67,15 +67,19 @@ For Linux and WSL2 environments, you can compile the CUDA native libraries nativ
 
 Run the following command from the root of the repository:
 ```bash
-docker run --rm --gpus all -v "$(pwd)":/workspace -w /workspace nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 bash -c "
+docker run --rm --gpus all -v "$(pwd)":/workspace -w /workspace nvcr.io/nvidia/cuda:12.8.0-devel-ubuntu22.04 bash -c "
   apt-get update && \
-  apt-get install -y cmake build-essential git && \
+  apt-get install -y ca-certificates gpg wget && \
+  wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
+  echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \
+  apt-get update && \
+  apt-get install -y cmake build-essential libopenblas-dev ninja-build libcudnn8-dev git && \
   ./build.sh --gpu-only
 "
 ```
 *Note: If your local Docker setup does not have the NVIDIA Container Toolkit configured, you can omit the `--gpus all` flag, as a physical GPU is not required during the compilation step.*
 
-This command compiles the wrapper and automatically stages the output `libqourex_fasterwhisper_native.so` and `libctranslate2.so` files under the C# GPU project runtimes directory (`src/Qourex.FasterWhisper.NET.Gpu/runtimes/linux-x64/native/`).
+This command compiles the wrapper and automatically stages the output `qourex_fasterwhisper_native.so` and `libctranslate2.so` files under the C# GPU project runtimes directory (`src/Qourex.FasterWhisper.NET.Gpu/runtimes/linux-x64/native/`).
 
 ---
 

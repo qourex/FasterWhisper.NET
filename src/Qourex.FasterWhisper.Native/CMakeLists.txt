@@ -8,10 +8,18 @@ set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 project(qourex_fasterwhisper_native LANGUAGES CXX C)
 
+option(WITH_CUDA "Build with CUDA support" ON)
+
+if(WITH_CUDA)
+  # Set CUDA architectures up to Hopper (9.0) which all CMake versions recognize
+  set(CUDA_ARCH_LIST "5.3;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0" CACHE STRING "CUDA architectures list for FindCUDA" FORCE)
+  # Manually append compute_100 (Blackwell) nvcc flags to bypass older CMake database limitations
+  list(APPEND CUDA_NVCC_FLAGS "-gencode;arch=compute_100,code=sm_100;-gencode;arch=compute_100,code=compute_100")
+  set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}" CACHE STRING "Custom NVCC flags" FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-option(WITH_CUDA "Build with CUDA support" ON)
 option(WITH_CUDNN "Build with cuDNN support" ON)
 option(WITH_DNNL "Build with oneDNN support" OFF)
 option(WITH_MKL "Build with MKL support" ON)

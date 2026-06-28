@@ -1,26 +1,20 @@
-# Qourex.FasterWhisper.NET.Gpu
+![FasterWhisper.NET Banner](https://raw.githubusercontent.com/qourex/FasterWhisper.NET/main/social-card.png)
 
-<p align="center">
-  <img src="logo.png" alt="Qourex Logo" width="120" />
-</p>
+# FasterWhisper.NET.Gpu
 
-<p align="center">
-  <strong>by <a href="https://qourex.com">Qourex</a></strong> — Bringing high-performance GPU-accelerated speech recognition to .NET
-</p>
+**by [Qourex](https://qourex.com)** — Bringing high-performance GPU-accelerated speech recognition to .NET
 
-<p align="center">
-  <a href="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml"><img src="https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg" alt="Build &amp; Test" /></a>
-  <a href="https://www.nuget.org/packages/Qourex.FasterWhisper.NET.Gpu"><img src="https://img.shields.io/nuget/v/Qourex.FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=NuGet" alt="NuGet"></a>
-  <a href="https://www.nuget.org/packages/Qourex.FasterWhisper.NET.Gpu"><img src="https://img.shields.io/nuget/dt/Qourex.FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=Downloads" alt="NuGet Downloads"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="https://dotnet.microsoft.com"><img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet" alt=".NET"></a>
-</p>
+[![Build & Test](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg)](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml)
+[![NuGet](https://img.shields.io/nuget/v/FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=NuGet)](https://www.nuget.org/packages/FasterWhisper.NET.Gpu)
+[![Downloads](https://img.shields.io/nuget/dt/FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=Downloads)](https://www.nuget.org/packages/FasterWhisper.NET.Gpu)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 
 ---
 
-**Qourex.FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library [faster-whisper](https://github.com/SYSTRAN/faster-whisper). It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
+**FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library faster-whisper. It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
 
-For CPU-only execution without CUDA prerequisites, please use the base [Qourex.FasterWhisper.NET](https://www.nuget.org/packages/Qourex.FasterWhisper.NET) package.
+For CPU-only execution without CUDA prerequisites, please use the base [FasterWhisper.NET](https://www.nuget.org/packages/FasterWhisper.NET) package.
 
 ---
 
@@ -38,7 +32,7 @@ For CPU-only execution without CUDA prerequisites, please use the base [Qourex.F
 To install the GPU-enabled package:
 
 ```bash
-dotnet add package Qourex.FasterWhisper.NET.Gpu
+dotnet add package FasterWhisper.NET.Gpu
 ```
 
 ## 🚀 CUDA Prerequisites
@@ -46,24 +40,24 @@ dotnet add package Qourex.FasterWhisper.NET.Gpu
 To run this package with GPU acceleration (`device: "cuda"`), you must have the following NVIDIA runtimes installed and configured on your host system:
 
 ### Windows
-1. **NVIDIA CUDA Toolkit 12.x** — [CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 9.x** — [cuDNN Downloads](https://developer.nvidia.com/cudnn)
+1. **NVIDIA CUDA Toolkit 12.x (Compiled with 12.8)** — [CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
+2. **NVIDIA cuDNN 8.9.x** — [cuDNN Downloads Archive](https://developer.nvidia.com/cudnn-downloads-archive)
 
 Ensure that the following DLLs from these installations are available in your system `PATH`:
 - `cudart64_12.dll` (or other CUDA 12 runtime versions)
 - `cublas64_12.dll`
 - `cublasLt64_12.dll`
-- `cudnn64_9.dll`
+- `cudnn64_8.dll` (specifically cuDNN v8)
 
 ### Linux / WSL2
-1. **NVIDIA CUDA Toolkit 12.x** — [WSL/Linux CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 9.x** — [cuDNN Downloads](https://developer.nvidia.com/cudnn)
+1. **NVIDIA CUDA Toolkit 12.x (Compiled with 12.8)** — [WSL/Linux CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
+2. **NVIDIA cuDNN 8.9.x** — [cuDNN Downloads Archive](https://developer.nvidia.com/cudnn-downloads-archive)
 
 Ensure that the following shared libraries from these installations are available in your `LD_LIBRARY_PATH` or system library paths (e.g. `/usr/local/cuda/lib64`):
 - `libcudart.so.12`
 - `libcublas.so.12`
 - `libcublasLt.so.12`
-- `libcudnn.so.9`
+- `libcudnn.so.8` (specifically cuDNN v8)
 
 ---
 
@@ -73,15 +67,19 @@ For Linux and WSL2 environments, you can compile the CUDA native libraries nativ
 
 Run the following command from the root of the repository:
 ```bash
-docker run --rm --gpus all -v "$(pwd)":/workspace -w /workspace nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 bash -c "
+docker run --rm --gpus all -v "$(pwd)":/workspace -w /workspace nvcr.io/nvidia/cuda:12.8.0-devel-ubuntu22.04 bash -c "
   apt-get update && \
-  apt-get install -y cmake build-essential git && \
+  apt-get install -y ca-certificates gpg wget && \
+  wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
+  echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \
+  apt-get update && \
+  apt-get install -y cmake build-essential libopenblas-dev ninja-build libcudnn8-dev git && \
   ./build.sh --gpu-only
 "
 ```
 *Note: If your local Docker setup does not have the NVIDIA Container Toolkit configured, you can omit the `--gpus all` flag, as a physical GPU is not required during the compilation step.*
 
-This command compiles the wrapper and automatically stages the output `libqourex_fasterwhisper_native.so` and `libctranslate2.so` files under the C# GPU project runtimes directory (`src/Qourex.FasterWhisper.NET.Gpu/runtimes/linux-x64/native/`).
+This command compiles the wrapper and automatically stages the output `qourex_fasterwhisper_native.so` and `libctranslate2.so` files under the C# GPU project runtimes directory (`src/Qourex.FasterWhisper.NET.Gpu/runtimes/linux-x64/native/`).
 
 ---
 
