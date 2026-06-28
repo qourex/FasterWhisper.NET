@@ -12,7 +12,7 @@
 
 ---
 
-**FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library [faster-whisper](https://github.com/SYSTRAN/faster-whisper). It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
+**FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library faster-whisper. It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
 
 For CPU-only execution without CUDA prerequisites, please use the base [FasterWhisper.NET](https://www.nuget.org/packages/FasterWhisper.NET) package.
 
