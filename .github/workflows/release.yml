@@ -197,9 +197,9 @@ jobs:
         cp CHANGELOG.md src/Qourex.FasterWhisper.NET.Gpu/
         dotnet pack src/Qourex.FasterWhisper.NET.Gpu/Qourex.FasterWhisper.NET.Gpu.csproj -c Release --no-build -p:Version=${{ steps.version.outputs.VERSION }} -p:IncludeMobileTargets=true -o ./artifacts
 
-    - name: Clean platform version suffixes from NuGet packages
+    - name: Clean platform version suffixes from NuGet and Symbol packages
       run: |
-        Get-ChildItem -Path artifacts/*.nupkg | ForEach-Object {
+        Get-ChildItem -Path artifacts/*.nupkg, artifacts/*.snupkg | ForEach-Object {
           Write-Host "Running TFM cleanup on $_"
           powershell -File scripts/cleanup_nupkg.ps1 $_.FullName
         }
