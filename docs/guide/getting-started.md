@@ -1,56 +1,58 @@
 # Getting Started with FasterWhisper.NET
 
-**FasterWhisper.NET** is an offline, high-performance speech-to-text library for modern C# and .NET applications. By wrapping the **CTranslate2** inference engine and integrating **Silero VAD v5 ONNX**, it provides developers with state-of-the-art C# speech recognition capabilities without the need for active cloud dependencies.
+FasterWhisper.NET is an offline, high-performance speech-to-text SDK for modern .NET applications. Powered by the CTranslate2 inference engine and integrated with Silero VAD v5 ONNX, the library provides state-of-the-art speech recognition with zero cloud dependencies.
 
 ---
 
-## 🛠️ System Prerequisites
+## System Prerequisites
 
-FasterWhisper.NET runs on native interop libraries. Depending on your operating system, make sure the following native dependencies are met:
+FasterWhisper.NET links to optimized native binaries. Ensure the host environment meets the platform-specific requirements:
 
 ### Windows
-- **CPU & GPU**: [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) must be installed.
-- **GPU (CUDA)**: Requires the CUDA Toolkit 12.x and cuDNN 9.x libraries to be installed and available in the system path (`PATH`).
+- **CPU and GPU**: Install the [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+- **GPU (CUDA)**: Requires NVIDIA CUDA Toolkit 12.x and cuDNN 9.x runtime libraries to be accessible in the system `PATH`.
 
 ### Linux
-- **CPU**: Install OpenBLAS or compatible BLAS libraries:
+- **CPU**: Install OpenBLAS or an equivalent BLAS library:
   ```bash
   sudo apt-get update && sudo apt-get install -y libopenblas-dev
   ```
-- **GPU (CUDA)**: CUDA 12.x driver/toolkit and cuDNN 9.x libraries must be installed on the host.
+- **GPU (CUDA)**: Requires NVIDIA CUDA 12.x driver/toolkit and cuDNN 9.x libraries on the host system.
 
 ### macOS
-- Uses Apple's built-in **Apple Accelerate** framework. No external BLAS installation is necessary.
+- Uses the built-in Apple Accelerate framework for hardware-accelerated BLAS operations on both Apple Silicon (ARM64) and Intel (x64) architectures. No external BLAS dependencies are required.
 
-### Android / iOS
-- Fully supported on 64-bit architectures (`arm64-v8a` for Android, `arm64` for iOS). 32-bit platforms/simulators are not supported.
+### Android and iOS
+- Native support is compiled for 64-bit architectures (`arm64-v8a` for Android, `arm64` for iOS). 32-bit platforms and x86 mobile emulators are not supported.
 
 ---
 
-## 📦 Installation
+## Package Installation
 
-FasterWhisper.NET is distributed as two primary NuGet packages. Choose the one that fits your hardware target:
+FasterWhisper.NET is distributed via NuGet. Choose the package appropriate for your target environment:
 
-### 1. CPU-Only Package
-For standard CPU execution on Windows, Linux, macOS, Android, and iOS:
+### Standard Package (CPU Execution)
+Recommended for cross-platform deployments across Windows, Linux, macOS, Android, and iOS:
+
 ```bash
 dotnet add package FasterWhisper.NET --version 1.0.2
 ```
 
-### 2. GPU-Accelerated Package
-For CUDA-enabled graphics cards on Windows and Linux (this package includes cuDNN and cublas dependencies inside the RID folders, but still requires the system to have a CUDA-compatible driver installed):
+### GPU-Accelerated Package (NVIDIA CUDA)
+Recommended for high-throughput CUDA acceleration on Windows and Linux x64 hosts:
+
 ```bash
 dotnet add package FasterWhisper.NET.Gpu --version 1.0.2
 ```
 
 ---
 
-## 🚀 Quick Start (Transcribing a WAV File)
+## Quick Start: Audio Transcription
 
-Here is a complete, copy-pasteable console application that downloads the `tiny` model, loads it into memory, processes a WAV file, and outputs the transcription.
+The following example demonstrates resolving and downloading a model from the Hugging Face Hub, configuring inference parameters, loading an audio file, and printing segmented transcription results:
 
 > [!NOTE]
-> FasterWhisper.NET requires **16kHz, single-channel (mono), 16-bit PCM** WAV files. Use the built-in `AudioProcessor` helper or tools like FFmpeg to transcode input files before processing.
+> FasterWhisper.NET operates on **16 kHz, single-channel (mono), 16-bit PCM** or 32-bit float audio. The built-in `AudioProcessor` automatically handles decoding, channel mixing, and Lanczos windowed-sinc resampling for standard WAV files.
 
 ```csharp
 using System;
@@ -67,7 +69,7 @@ class Program
 
         if (!File.Exists(audioPath))
         {
-            Console.WriteLine($"Please provide a valid wav file at: {audioPath}");
+            Console.WriteLine($"Audio file not found: {audioPath}");
             return;
         }
 
@@ -88,26 +90,26 @@ class Program
 
         // 2. Initialize and configure the Whisper model builder
         var builder = WhisperModelBuilder.Create(modelPath)
-            .WithDevice("cpu")             // Use "cuda" if using FasterWhisper.NET.Gpu
-            .WithComputeType("default")     // Set "float16" for GPU to maximize speed
-            .WithMemoryMapping()            // Memory-map weights for instant load
+            .WithDevice("cpu")             // Use "cuda" for GPU acceleration
+            .WithComputeType("default")     // Use "float16" for GPU to maximize throughput
+            .WithMemoryMapping()            // Memory-map weights for rapid initialization
             .WithNumReplicas(1);
 
         using var model = builder.Build();
         Console.WriteLine("Model loaded successfully.");
 
-        // 3. Load and transcode the audio using AudioProcessor
+        // 3. Load and preprocess the audio file
         var audioProcessor = new AudioProcessor(model.NMels);
         float[] pcm = audioProcessor.LoadWav(audioPath);
 
-        // 4. Set transcription parameters
+        // 4. Configure decoding parameters
         var options = new WhisperOptions
         {
             BeamSize = 5,
-            Temperature = 0.0f
+            SamplingTemperature = 0.0f
         };
 
-        // 5. Transcribe
+        // 5. Execute transcription
         var segments = model.Transcribe(pcm, language: "en", options: options);
 
         Console.WriteLine("\n--- Transcript ---");
@@ -121,57 +123,64 @@ class Program
 
 ---
 
-## 🔄 Real-time Streaming Transcription
+## Real-Time Streaming Transcription
 
-FasterWhisper.NET supports real-time streaming using an asynchronous push pipeline. This is ideal for microphone inputs or audio feeds.
+FasterWhisper.NET supports real-time streaming using an asynchronous push pipeline. This architecture is designed for microphone feeds, network audio streams, and live captioning workflows:
 
 ```csharp
+using System;
+using System.Threading.Tasks;
 using Qourex.FasterWhisper.NET;
 
-// Initialize the model
+// 1. Initialize the model
 using var model = WhisperModelBuilder.Create(modelPath)
     .WithDevice("cpu")
     .Build();
 
-// Create the stream context
+// 2. Create the streaming context
 using var stream = model.CreateStream();
 
-// Start the transcription task in the background
+// 3. Process transcription events concurrently in the background
 var transcriptionTask = Task.Run(async () =>
 {
     await foreach (var segment in stream.GetSegmentsAsync())
     {
-        Console.WriteLine($"Streamed Segment: [{segment.Start:F2}s -> {segment.End:F2}s] {segment.Text}");
+        Console.WriteLine($"[{segment.Start:F2}s -> {segment.End:F2}s] {segment.Text}");
     }
 });
 
-// Push audio chunks (16kHz PCM float array) periodically
-float[] chunk = new float[16000]; // 1 second of audio
-stream.Push(chunk);
+// 4. Ingest audio buffers (16 kHz mono float32 PCM)
+float[] audioBuffer = new float[16000]; // 1 second of audio
+stream.Push(audioBuffer);
 
-// Tell the stream that no more audio is coming
+// 5. Signal stream completion
 stream.Finish();
 
-// Wait for the final segments to process
+// 6. Await remaining segment processing
 await transcriptionTask;
 ```
 
 ---
 
-## 🗃️ Available Models
+## Available Models
 
-FasterWhisper.NET supports all standard CTranslate2-compatible Whisper models. The `ModelDownloader` resolves model names from the official repositories on Hugging Face (such as `Systran/faster-whisper-*`).
+FasterWhisper.NET supports all standard CTranslate2-compatible Whisper models. The `ModelDownloader` resolves model assets from Hugging Face repositories (such as `Systran/faster-whisper-*`):
 
-| Model Name | Parameter Count | VRAM Requirement | Recommended Use Case |
-| :--- | :--- | :--- | :--- |
-| **tiny** | 39 M | ~150 MB | Ultra-fast CPU execution, mobile devices |
-| **base** | 74 M | ~250 MB | Low-resource desktop, quick prototyping |
-| **small** | 244 M | ~600 MB | Good balance of speed and accuracy |
-| **medium** | 769 M | ~1.5 GB | Server-side transcribing, high accuracy |
-| **large-v3** | 1.5 B | ~3.0 GB | Maximum accuracy, multilingual support |
+| Model | Parameters | Disk Footprint | Approx. VRAM (FP16) | Recommended Target |
+| :--- | :--- | :--- | :--- | :--- |
+| **tiny** | 39 M | ~75 MB | ~150 MB | Low-latency edge, mobile, unit testing |
+| **base** | 74 M | ~142 MB | ~250 MB | General desktop, rapid prototyping |
+| **small** | 244 M | ~466 MB | ~600 MB | Balanced accuracy and throughput |
+| **medium** | 769 M | ~1.5 GB | ~1.5 GB | High-accuracy transcription |
+| **large-v3** | 1.55 B | ~3.1 GB | ~3.0 GB | Maximum accuracy, multilingual pipelines |
+| **large-v3-turbo** | 809 M | ~1.6 GB | ~2.0 GB | High accuracy with optimized decoder layers |
 
-### Compute Types and Quantization
-CTranslate2 allows you to run models at different precisions (compute types) to reduce size and speed up inference:
-- **`default`**: Automatically picks the best type based on hardware capabilities.
-- **`float16`**: Recommended for GPU (`cuda`) to take advantage of Tensor Cores.
-- **`int8`**: Quantizes model weights to 8-bit integers. Reduces memory consumption by half and speeds up CPU inference on modern instruction sets (AVX-512 / AVX2).
+### Precision and Compute Types
+
+CTranslate2 supports multiple compute precisions to balance memory usage and inference throughput:
+
+- **`default`**: Automatically selects the optimal compute precision for the host device.
+- **`float16`**: Standard half-precision floating point. Recommended for NVIDIA GPUs to utilize Tensor Cores.
+- **`int8`**: 8-bit integer quantization. Reduces memory consumption by approximately 50% and accelerates CPU execution via modern SIMD extensions (AVX-512 / AVX2 / NEON).
+- **`int8_float16`**: Combines INT8 quantized weights with FP16 activation storage for reduced VRAM footprint.
+- **`float32`**: Standard 32-bit single-precision floating point.

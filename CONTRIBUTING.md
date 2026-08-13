@@ -1,113 +1,90 @@
 # Contributing to FasterWhisper.NET
 
-Thank you for your interest in contributing to FasterWhisper.NET! This document
-provides guidelines for contributing to the project.
+Thank you for your interest in contributing to FasterWhisper.NET. This document provides technical guidelines and development workflows for contributing to the project.
 
-## How to Contribute
+---
+
+## Contribution Workflow
 
 ### Reporting Issues
 
-- Use the [GitHub Issues](https://github.com/qourex/fasterwhisper.net/issues)
-  tracker
-- Check existing issues before creating a new one
-- Include a clear title and description
-- Provide reproduction steps, expected behavior, and actual behavior
-- Include your OS, .NET version, and GPU (if applicable)
+- Use the [GitHub Issues](https://github.com/qourex/fasterwhisper.net/issues) tracker.
+- Search existing open and closed issues before submitting a new issue.
+- Provide a clear, descriptive title and detailed reproduction steps.
+- Include environment information: Operating System, .NET SDK version, GPU hardware, and driver/CUDA versions if applicable.
 
-### Suggesting Features
+### Feature Suggestions
 
-- Open a [GitHub Discussion](https://github.com/qourex/fasterwhisper.net/discussions)
-  or issue with the `enhancement` label
-- Describe the use case and proposed solution
-- Consider backward compatibility implications
+- Open a [GitHub Discussion](https://github.com/qourex/fasterwhisper.net/discussions) or issue with the `enhancement` label.
+- Detail the specific enterprise use case and proposed technical design.
+- Consider backward compatibility and native interop impacts.
 
 ### Submitting Pull Requests
 
-1. **Fork** the repository and create a branch from `main`
-2. **Install prerequisites**:
+1. **Fork** the repository and create a feature branch from `main`.
+2. **Verify Prerequisites**:
    - **.NET 8.0+ SDK**
    - **CMake 3.18+**
-   - **Visual Studio 2022 / Build Tools (MSVC)** for C++ compilation
-   - **Intel oneAPI Math Kernel Library (oneMKL)** — optional but highly recommended for CPU BLAS performance (pass `-DWITH_MKL=ON` in CMake)
-   - **Intel oneAPI DPC++/C++ Compiler** — optional (for highly optimized SIMD/AVX code generation)
-   - **CUDA Toolkit 12.x & cuDNN 9.x** (optional, required for GPU acceleration builds)
-3. **Build the native library**:
+   - **Visual Studio 2022 / MSVC Build Tools** for native C++ compilation
+   - **Intel oneAPI Math Kernel Library (oneMKL)** (optional for CPU BLAS performance)
+   - **CUDA Toolkit 12.x and cuDNN 9.x** (optional for GPU builds)
+3. **Build the Native Library**:
    > [!IMPORTANT]
-   > When compiling the C++ wrapper manually, you must run all `cmake` and build commands from a **Visual Studio Developer Command Prompt** (or a terminal with `vcvars64.bat` loaded) to ensure MSVC, CMake, and oneAPI compiler environment variables are correctly configured.
+   > When compiling the C++ wrapper manually on Windows, run `cmake` and build commands from a **Visual Studio Developer Command Prompt** (or a terminal with `vcvars64.bat` loaded).
 
    Using the automation script:
    ```powershell
-   # Build with CPU optimizations (MKL/OpenMP if installed, or fallback OpenBLAS)
+   # Build CPU optimizations
    .\build.ps1 -CpuOnly
 
-   # Build with CUDA + GPU support
+   # Build with CUDA and GPU support
    .\build.ps1
    ```
-4. **Make your changes** with clear, descriptive commits
-5. **Add tests** for new features or bug fixes
-6. **Run the test suite**:
+4. **Implement Changes** with concise, descriptive commit messages.
+5. **Add Automated Tests** for any new features or bug fixes.
+6. **Execute the Test Suite**:
    ```powershell
-    dotnet test tests\Qourex.FasterWhisper.NET.Tests -c Release
+   dotnet test tests\Qourex.FasterWhisper.NET.Tests -c Release
    ```
-7. **Ensure the build passes**:
+7. **Ensure Solution Builds Cleanly**:
    ```powershell
-    dotnet build src\Qourex.FasterWhisper.NET\Qourex.FasterWhisper.NET.csproj -c Release
+   dotnet build Qourex.FasterWhisper.slnx -c Release
    ```
-8. **Submit a Pull Request** with a clear description of the changes
+8. **Submit a Pull Request** linking to relevant issues with an architectural summary.
 
-## Development Guidelines
+---
 
-### Code Style
+## Development and Engineering Standards
 
-- Follow standard C# coding conventions
-- Use `///` XML documentation comments on all public APIs
-- Keep methods focused and under ~50 lines where practical
-- Use `Span<T>` and `Memory<T>` for performance-critical paths
+### C# Managed Layer
 
-### Project Structure
+- Adhere to standard .NET naming and design guidelines.
+- Provide XML documentation comments (`///`) on all public types and members.
+- Keep methods modular and focused.
+- Utilize `Span<T>`, `ReadOnlyMemory<T>`, and `[LibraryImport]` source generation for performance-critical interop routines.
 
-```
-src/
-├── Qourex.FasterWhisper.Native/ # C++ interop layer (CMake)
-└── Qourex.FasterWhisper.NET/    # C# class library
-tests/
-└── Qourex.FasterWhisper.NET.Tests/ # xUnit test suite
-samples/
-└── Qourex.FasterWhisper.NET.Samples/ # Console app feature demo
-```
+### Native C++ Layer
 
-### Testing
+- Modifications to `qourex_fasterwhisper_native.h` or `.cpp` require rebuilding native binaries via `build.ps1`.
+- Maintain the standardized C ABI export pattern: `EXPORT return_type function_name(...)`.
+- Always provide an output error pointer (`char** error_msg`) for exception forwarding.
+- All heap allocations returned across the interop boundary must have corresponding explicit free functions (e.g., `whisper_align` and `free_alignment_result`).
+- Production native code must not contain unmanaged `printf` or debugging output.
 
-- **Unit tests**: Fast, no external dependencies (tokenizer, audio processing, etc.)
-- **Integration tests**: Require native DLLs and may download models. Marked by
-  longer execution times.
-- All PRs must pass the existing test suite
-- New features should include corresponding tests
+### Documentation Requirements
 
-### Native (C++) Changes
+- Update `README.md` and `docs/` for user-facing API changes.
+- Update `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/).
+- Keep documentation completely free of emojis, maintaining an enterprise technical standard.
 
-- Changes to `qourex_fasterwhisper_native.h` / `.cpp` require rebuilding via `build.ps1`
-- Follow the existing export pattern: `EXPORT return_type function_name(...)`
-- Always provide an error output parameter (`char** error_msg`) for native functions
-- Free functions must be paired with allocation functions (e.g., `whisper_align` / `free_alignment_result`)
-
-### Documentation
-
-- Update `README.md` for user-facing changes
-- Update `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/)
-- Update XML doc comments for any modified public APIs
+---
 
 ## Code of Conduct
 
-By participating in this project, you agree to maintain a respectful and
-inclusive environment. Please:
+All contributors are expected to uphold a welcoming, professional, and respectful environment in accordance with our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-- Be welcoming and inclusive
-- Be respectful of differing viewpoints and experiences
-- Accept constructive criticism gracefully
-- Focus on what is best for the community
+---
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the
-[MIT License](LICENSE).
+By contributing to FasterWhisper.NET, you agree that your contributions will be licensed under the [MIT License](LICENSE).

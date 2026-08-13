@@ -1,36 +1,38 @@
 ---
 name: Bug Report
-about: Report a bug to help us improve
+about: Report a defect or unexpected behavior to help improve reliability
 title: '[BUG] '
 labels: bug
 assignees: ''
 ---
 
-## Description
+## Summary
 
-A clear and concise description of the bug.
+Provide a concise technical description of the defect.
 
 ## Steps to Reproduce
 
-1. ...
-2. ...
+1. Initialize model with configuration: ...
+2. Execute transcription: ...
+3. Observe error or unexpected behavior.
 
 ## Expected Behavior
 
-What you expected to happen.
+Describe the expected behavior.
 
 ## Actual Behavior
 
-What actually happened.
+Describe the actual behavior, including full exception types, messages, and stack traces.
 
-## Environment
+## Environment Details
 
-- **OS**: Windows 10/11
-- **.NET Version**: 
-- **NuGet Package Version**: 
-- **GPU** (if applicable): 
-- **Model**: (e.g. base, large-v3)
+- **Operating System**: Windows / Linux / macOS / Android / iOS (Architecture: x64 / ARM64)
+- **.NET SDK Version**: (e.g. 8.0, 9.0, 10.0)
+- **Package Version**: (e.g. 1.0.2)
+- **Device & Precision**: (e.g. cpu / default, cuda / float16)
+- **GPU Hardware & CUDA Version** (if applicable):
+- **Model Checkpoint**: (e.g. tiny, base, large-v3)
 
-## Additional Context
+## Additional Logs
 
-Add any other context, logs, or stack traces.
+Attach relevant console logs, diagnostics, or minimal reproduction snippets.

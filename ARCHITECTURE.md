@@ -1,136 +1,151 @@
-# Architecture
+# System Architecture
 
-> Technical architecture overview of **FasterWhisper.NET** — a high-performance C#/.NET wrapper for OpenAI's Whisper speech recognition model, powered by [CTranslate2](https://github.com/OpenNMT/CTranslate2).
+> Technical architecture and interop specification for **FasterWhisper.NET** — a high-performance C# / .NET SDK for OpenAI Whisper speech recognition, powered by [CTranslate2](https://github.com/OpenNMT/CTranslate2).
 
-## Layer Diagram
+---
+
+## Architectural Layering
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      Application Layer                       │
-│              (Your code using the public API)                │
+│        (ASP.NET Core, Blazor, WinForms, MAUI, Console)       │
 ├─────────────────────────────────────────────────────────────┤
 │                   C# Managed Layer                           │
 │  WhisperModel │ AudioProcessor │ WhisperTokenizer │ SileroVad│
 ├─────────────────────────────────────────────────────────────┤
-│                  Native Interop (P/Invoke)                    │
+│                  Native Interop (P/Invoke)                   │
 │               NativeMethods.cs (LibraryImport)               │
 ├─────────────────────────────────────────────────────────────┤
-│              C++ Native Layer (extern "C")                    │
+│              C++ Native Layer (extern "C")                   │
 │           qourex_fasterwhisper_native.cpp / .h               │
 ├─────────────────────────────────────────────────────────────┤
 │                     CTranslate2 v4.7.0                       │
 │         (Whisper model inference, beam search, CUDA)         │
 ├─────────────────────────────────────────────────────────────┤
-│              Hardware (CPU / NVIDIA GPU)                      │
-│              Intel MKL │ cuBLAS │ cuDNN                       │
+│              Hardware Acceleration Runtimes                  │
+│        Intel oneMKL │ OpenBLAS │ NVIDIA cuBLAS │ cuDNN       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Transcription Pipeline
+---
+
+## Transcription Execution Pipeline
 
 ```
-Audio File ──► LoadWav() / FFmpeg ──► Resample(16kHz) ──► Normalize/HPF/PreEmphasis
-     │                                                           │
-     ▼                                                           ▼
- [Optional]                                              ExtractMelSpectrogram()
- SileroVad ──► Speech segments                                   │
-     │                                                           ▼
-     ▼                                                  Native whisper_generate()
-TranscribeChunk() ◄──── CTranslate2 beam search ◄──── Token prompt assembly
+Audio Input ──► LoadWav() / FFmpeg ──► Resample(16kHz) ──► Normalize / HighPass / PreEmphasis
+     │                                                               │
+     ▼                                                               ▼
+ [Optional]                                               ExtractMelSpectrogram()
+ SileroVad ──► Active speech chunks                                  │
+     │                                                               ▼
+     ▼                                                    Native whisper_generate()
+TranscribeChunk() ◄──── CTranslate2 beam search ◄──── Token prompt context assembly
      │
      ▼
-WhisperSegment ──► Word timestamps (align()) ──► Text post-processing ──► yield
+WhisperSegment ──► Cross-attention align() ──► Text post-processing ──► Output Stream
 ```
 
-## Memory Ownership Model
+---
 
-| Resource | Allocation | Lifetime | Release |
-|:---------|:-----------|:---------|:--------|
-| `_modelPtr` | Native `new Whisper(...)` | `WhisperModel` lifetime | `Dispose()` → `FreeWhisperModel()` |
-| `NativeWhisperResult*` | Native `new NativeWhisperResult()` | Per-transcription | `free_whisper_result()` after marshalling |
-| Mel features | `GCHandle.Alloc(..., Pinned)` | Duration of P/Invoke call | `GCHandle.Free()` in `finally` |
-| ONNX session | `new InferenceSession(...)` | `SileroVad` lifetime | `SileroVad.Dispose()` |
+## Memory Management and Ownership Model
 
-## Error Propagation
+| Resource | Allocation Strategy | Lifetime | Release Mechanism |
+| :--- | :--- | :--- | :--- |
+| `_modelPtr` | Native `new Whisper(...)` | `WhisperModel` instance | `Dispose()` → `FreeWhisperModel()` |
+| `NativeWhisperResult*` | Native `new NativeWhisperResult()` | Per-transcription call | `free_whisper_result()` post-marshaling |
+| Mel Features Buffer | `GCHandle.Alloc(..., Pinned)` | Duration of P/Invoke call | `GCHandle.Free()` in managed `finally` block |
+| ONNX Inference Session | `new InferenceSession(...)` | `SileroVad` instance | `SileroVad.Dispose()` |
+
+---
+
+## Error Propagation and Exception Safety
 
 ```
-Native C++:  catch (std::exception& e) → *error_msg = strdup(e.what())
+Native C++:  catch (const std::exception& e) ──► *error_msg = strdup(e.what())
      │
      ▼
-P/Invoke:    Marshal.PtrToStringUTF8(errorPtr) → FreeString(errorPtr)
+P/Invoke:    Marshal.PtrToStringUTF8(errorPtr) ──► FreeString(errorPtr)
      │
      ▼
-Managed:     throw new ExternalException($"Generation failed: {errorMsg}")
+Managed:     throw new ExternalException($"Inference failed: {errorMsg}")
 ```
 
-## Concurrency & Thread Safety
+---
 
-`WhisperModel` is thread-safe and supports concurrent transcription calls. Access is serialized via a `SemaphoreSlim` initialized with a capacity equal to `NumReplicas`.
+## Concurrency and Thread Safety
 
-- If `NumReplicas = 1` (default), concurrent transcription calls will queue and execute sequentially without causing native CTranslate2 access violations.
-- If `NumReplicas > 1`, the underlying native CTranslate2 replica pool will process up to `NumReplicas` transcriptions concurrently, sharing the same loaded model weights in memory to prevent VRAM/RAM duplication.
+`WhisperModel` coordinates concurrent transcription requests using an internal `SemaphoreSlim` initialized to the model's `NumReplicas` capacity:
 
-All public methods throw `ObjectDisposedException` after `Dispose()` has been called.
+- **Single Replica (`NumReplicas = 1`)**: Concurrent transcription calls are queued safely and executed sequentially, preventing native memory access collisions without throwing exceptions.
+- **Multiple Replicas (`NumReplicas > 1`)**: The native CTranslate2 replica pool processes up to `NumReplicas` transcription requests concurrently in parallel. Replicas share the same base model weight tensors in memory, preventing RAM and VRAM duplication.
 
-## Audio Processing Pipeline
+All public APIs implement `ObjectDisposedException` guards once `Dispose()` has been called.
+
+---
+
+## Digital Signal Processing (DSP) Pipeline
 
 ```
-Input ──► [DenoiseAudio] ──► NormalizeRMS ──► HighPassFilter ──► PreEmphasis
-                                                                    │
-                                                                    ▼
-                                               Hann Window ──► FFT ──► |FFT|²
-                                                                    │
-                                                                    ▼
-                                              Mel Filter Bank ──► log10 ──► clamp
-                                                                    │
-                                                                    ▼
-                                                          Log-Mel Spectrogram
-                                                        (nMels × 3000 frames)
+Input Audio ──► [DenoiseAudio] ──► NormalizeRMS ──► HighPassFilter ──► PreEmphasis
+                                                                         │
+                                                                         ▼
+                                                    Hann Window ──► FFT ──► |FFT|²
+                                                                         │
+                                                                         ▼
+                                                   Mel Filter Bank ──► log10 ──► clamp
+                                                                         │
+                                                                         ▼
+                                                                Log-Mel Spectrogram
+                                                               (nMels × 3000 frames)
 ```
 
-### Supported Audio Formats (WAV)
+### Supported WAV Container Formats
 
-| Format | `wFormatTag` | Bit Depths |
-|:-------|:---:|:---|
-| PCM | 1 | 8, 16, 24, 32 |
-| IEEE Float | 3 | 32, 64 |
-| A-law (G.711) | 6 | 8 |
-| μ-law (G.711) | 7 | 8 |
+| Format Name | `wFormatTag` | Bit Depths |
+| :--- | :---: | :--- |
+| **PCM** | 1 | 8, 16, 24, 32 |
+| **IEEE Float** | 3 | 32, 64 |
+| **A-law (G.711)** | 6 | 8 |
+| **μ-law (G.711)** | 7 | 8 |
 
-Non-WAV formats (MP3, MP4, Opus, FLAC, etc.) are decoded via FFmpeg subprocess.
+*Non-WAV formats (MP3, MP4, Opus, FLAC, AAC) are decoded via a local FFmpeg subprocess if present on the system `PATH`.*
 
-## Directory Structure
+---
+
+## Repository Structure
 
 ```
 Qourex.FasterWhisper/
 ├── src/
-│   ├── Qourex.FasterWhisper.NET/           # Main managed library
+│   ├── Qourex.FasterWhisper.NET/           # Core managed library (NuGet package)
 │   │   ├── AudioProcessor.cs               # WAV decoding, resampling, Mel extraction
-│   │   ├── AudioQualityReport.cs           # Audio quality assessment report
+│   │   ├── AudioQualityReport.cs           # Audio quality grading and SNR estimation
 │   │   ├── BatchedInferencePipeline.cs     # High-throughput batch inference pipeline
-│   │   ├── HallucinationDetector.cs        # Repetition and silence hallucination detector
-│   │   ├── ModelDownloader.cs              # HuggingFace model downloading
-│   │   ├── NativeMethods.cs                # P/Invoke declarations
-│   │   ├── SegmentMerger.cs                # Merges VAD-split chunks into segments
-│   │   ├── SileroVad.cs                    # ONNX-based voice activity detection
-│   │   ├── StreamingMelExtractor.cs        # Real-time streaming Mel spectrogram extraction
-│   │   ├── SubtitleExporter.cs             # Subtitle exporting (SRT, VTT, JSON, TSV, Markdown)
-│   │   ├── TextRestorer.cs                 # Normalization and formatting text restoration
-│   │   ├── TranscriptionDiagnostics.cs     # Performance telemetry and diagnostics
-│   │   ├── TranscriptionTypes.cs           # Transcription result data structures
-│   │   ├── WhisperModel.cs                 # High-level transcription API
-│   │   ├── WhisperModelBuilder.cs          # Fluent builder for model loading
-│   │   ├── WhisperOptions.cs               # Configuration options
-│   │   ├── WhisperSegment.cs               # Output segment and word structures
-│   │   └── WhisperTokenizer.cs             # GPT-2 BPE tokenizer
-│   ├── Qourex.FasterWhisper.NET.Gpu/       # GPU variant (Windows & Linux CUDA)
-│   └── Qourex.FasterWhisper.Native/        # C++ native wrapper
+│   │   ├── HallucinationDetector.cs        # Repetition and silence hallucination mitigation
+│   │   ├── ModelDownloader.cs              # Hugging Face model resolution and download
+│   │   ├── NativeMethods.cs                # Source-generated P/Invoke declarations
+│   │   ├── SegmentMerger.cs                # Merges VAD chunks into continuous segments
+│   │   ├── SileroVad.cs                    # Silero VAD v5 ONNX integration
+│   │   ├── StreamingMelExtractor.cs        # Real-time streaming Mel extractor
+│   │   ├── SubtitleExporter.cs             # SRT, WebVTT, TSV, JSON, Markdown export
+│   │   ├── TextRestorer.cs                 # Output capitalization and punctuation formatting
+│   │   ├── TranscriptionDiagnostics.cs     # RTF and telemetry diagnostics
+│   │   ├── TranscriptionTypes.cs           # Public result models
+│   │   ├── WhisperModel.cs                 # Primary transcription API
+│   │   ├── WhisperModelBuilder.cs          # Fluent configuration builder
+│   │   ├── WhisperOptions.cs               # Generation and DSP options
+│   │   ├── WhisperSegment.cs               # Segment and word data structures
+│   │   └── WhisperTokenizer.cs             # GPT-2 BPE tokenizer implementation
+│   ├── Qourex.FasterWhisper.NET.Gpu/       # GPU package project and runtime targets
+│   └── Qourex.FasterWhisper.Native/        # C++ native interop wrapper
 │       ├── qourex_fasterwhisper_native.cpp  # CTranslate2 C API bridge
-│       └── CMakeLists.txt                  # CMake build (fetches CTranslate2)
+│       └── CMakeLists.txt                  # CMake build definition
 ├── tests/
-│   └── Qourex.FasterWhisper.NET.Tests/     # xUnit test suite
-├── samples/
-│   └── Qourex.FasterWhisper.NET.Samples/   # Console application feature demo
-├── build.ps1                               # Windows build automation script
-└── build.sh                                # Linux build automation script
+│   └── Qourex.FasterWhisper.NET.Tests/     # xUnit test suite (152 tests)
+├── samples/                                # 10 sample applications for .NET 10.0
+├── docs/                                   # VitePress documentation portal
+├── build.ps1                               # PowerShell build script
+├── build.sh                                # Bash build script
+└── Qourex.FasterWhisper.slnx              # Solution file
 ```

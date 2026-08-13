@@ -1,116 +1,111 @@
-# Mobile Deployment (Android & iOS)
+# Mobile Deployment: Android and iOS
 
-FasterWhisper.NET features first-class native support for running speech-to-text directly on mobile devices (Android and iOS). Because it bypasses external API endpoints, transcription is fast, secure, and functions completely offline.
+FasterWhisper.NET includes native binaries and deployment targets for running offline speech recognition on mobile devices (Android and iOS). Because processing occurs on-device, transcription operates with zero cloud latency and maintains complete data privacy.
 
 ---
 
-## 📋 Architectural Overview
+## Architectural Overview
 
-To run high-performance AI models on mobile devices, FasterWhisper.NET uses native compilation techniques:
+To deliver high-performance inference on mobile hardware, FasterWhisper.NET links to platform-native mathematical libraries:
 
-| Platform | Architecture | Mathematical Backend | Native Library Target |
+| Platform | Architecture | Mathematical Engine | Native Runtime Libraries |
 | :--- | :--- | :--- | :--- |
 | **Android** | `arm64-v8a` (64-bit) | Eigen / Ruy | `qourex_fasterwhisper_native.so`, `libctranslate2.so` |
-| **iOS** | `arm64` (64-bit) | Apple Accelerate | `qourex_fasterwhisper_native.dylib`, `libctranslate2.dylib` (Embedded Framework) |
+| **iOS** | `arm64` (64-bit) | Apple Accelerate | `qourex_fasterwhisper_native.dylib`, `libctranslate2.dylib` (Framework) |
 
 > [!WARNING]
-> Only 64-bit mobile devices and simulators are supported. Attempting to build or run on 32-bit simulators or legacy devices will result in a `DllNotFoundException` or runtime execution failures.
+> Only 64-bit physical devices and 64-bit simulators are supported. 32-bit platforms and legacy x86 emulators are unsupported and will fail during native library loading.
 
 ---
 
-## 🤖 Android Integration
+## Android Configuration
 
-To configure your Android application for FasterWhisper.NET:
+Configure your .NET Android or .NET MAUI project as follows:
 
 ### 1. Workload Installation
-Ensure that the Android development workload is installed:
+Verify that the Android workload is installed in your development environment:
 ```bash
 dotnet workload install android
 ```
 
 ### 2. Permissions Configuration
-If you plan to pick or record audio files from external storage, you must request permissions in your `AndroidManifest.xml` (located under `Platforms/Android/`):
+If your application captures microphone input or accesses external audio storage, declare the appropriate permissions in `AndroidManifest.xml` (located under `Platforms/Android/`):
+
 ```xml
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<!-- If you plan to record live audio using a microphone -->
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
 
 ---
 
-## 🍎 iOS Integration
+## iOS Configuration
 
-To configure your iOS application for FasterWhisper.NET:
+Configure your .NET iOS or .NET MAUI project as follows:
 
 ### 1. Workload Installation
-Ensure that the iOS development workload is installed:
+Verify that the iOS workload is installed in your development environment:
 ```bash
 dotnet workload install ios
 ```
 
-### 2. Battery & Math Backend
-FasterWhisper.NET compiles against Apple's native **Apple Accelerate** framework on iOS. This offers hardware-level optimization for the Apple Neural Engine and CPU vector extensions (NEON), resulting in extremely low battery consumption and fast transcription speeds.
+### 2. Apple Accelerate Framework
+On iOS, FasterWhisper.NET links directly to Apple's **Apple Accelerate** framework. This utilizes Apple Silicon Neural Engine and CPU NEON vector registers, maximizing battery efficiency and throughput.
 
 ### 3. Code-Signing Requirements
-Physical iOS devices require all binaries and native `.dylib` libraries to be code-signed. The FasterWhisper.NET NuGet package includes MSBuild targets that automatically extract, sign, and embed the CTranslate2 and native interop dynamic libraries into your `.app` bundle.
-- Ensure you have a valid Apple Developer Profile configured in Visual Studio or Rider.
-- For physical device debugging, configure your `Entitlements.plist` and provisioning profiles as you would for a standard iOS app.
+Physical iOS deployment requires all dynamic libraries to be signed. The FasterWhisper.NET package includes MSBuild targets that automatically embed and sign the native dynamic libraries into the application `.app` bundle.
+- Ensure an active Apple Developer Provisioning Profile is selected in your IDE.
+- If recording live audio, include `NSMicrophoneUsageDescription` in your `Info.plist`.
 
 ---
 
-## 💾 Resource Management & The Mobile Caching Workaround
+## Packaged Asset Management and Local Caching
 
-### The Problem
-On Android and iOS, raw files (such as pre-packaged audio clips or VAD ONNX models) embedded in the application package are zipped inside the `.apk` or `.ipa` bundle. They do **not** exist as separate, physical files on the disk.
-Because the native C++ Whisper engine requires direct filesystem path strings (`char*`) to load assets, it cannot read files directly from inside the compiled bundle.
+### Packaged Resource Access
+On mobile platforms, bundled assets (such as sample WAV files or pre-packaged VAD ONNX models) are stored inside compressed application archive packages (`.apk` / `.ipa`). They do not reside as standalone filesystem paths.
 
-### The Solution: Extracting to Cache
-On application startup, you must extract your packaged assets out of the application package and write them to the local device cache directory (`FileSystem.CacheDirectory` or `FileSystem.AppDataDirectory`). Once extracted, you can pass the physical path of the cached file to the SDK.
+Because native C++ runtimes require direct filesystem paths (`const char*`), assets stored in app packages must be extracted to the device's local application cache directory before initialization.
 
-Here is the exact helper method used in our .NET MAUI sample:
+### Asset Extraction Helper
+
+The following pattern extracts a bundled app asset to the local cache directory:
 
 ```csharp
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Maui.Storage;
 
-public async Task<string> PrepareTempFileFromAssetAsync(string assetName)
+public static async Task<string> PrepareTempFileFromAssetAsync(string assetName)
 {
-    // Define the destination target in the local CacheDirectory
     string targetPath = Path.Combine(FileSystem.CacheDirectory, assetName);
     
-    // Check if we need to extract it (or optionally overwrite it)
-    if (File.Exists(targetPath))
+    // Verify whether extraction is needed
+    if (!File.Exists(targetPath))
     {
-        File.Delete(targetPath);
+        using var stream = await FileSystem.OpenAppPackageFileAsync(assetName);
+        using var outStream = File.Create(targetPath);
+        await stream.CopyToAsync(outStream);
     }
-
-    // Open the read stream from the packaged app bundle
-    using var stream = await FileSystem.OpenAppPackageFileAsync(assetName);
     
-    // Write it to a physical file on disk
-    using var outStream = File.OpenWrite(targetPath);
-    await stream.CopyToAsync(outStream);
-    
-    // Return the physical file path that native interop can read
     return targetPath;
 }
 ```
 
 ---
 
-## 📦 Managing Large Model Assets
+## Managing Model Assets
 
-Whisper model files are large (even the `tiny` model is approximately ~75MB). Packaging models directly inside the mobile app bundle will dramatically bloat your store download package.
+Whisper model binaries range from ~75 MB (`tiny`) upwards. Bundling model weights directly into the store distribution bundle can significantly inflate application package size.
 
-### Recommended Flow
-1. **Dynamic Download**: Exclude model files from your app bundle.
-2. **On-Demand Loading**: When the app starts (or when the user first triggers transcription), check if the model folder exists in `FileSystem.AppDataDirectory`.
-3. **ModelDownloader**: If it does not exist, use the `ModelDownloader` class to download it dynamically from Hugging Face:
+### Recommended On-Demand Loading Pattern
+
+1. **Exclude Model Weights from App Store Bundle**: Keep the base application download small.
+2. **First-Launch Check**: Verify whether model weights exist in `FileSystem.AppDataDirectory`.
+3. **Download with Progress Reporting**: Use `ModelDownloader` to retrieve weights from Hugging Face on demand:
 
 ```csharp
+using System;
 using Qourex.FasterWhisper.NET;
-using Microsoft.Maui.Storage;
+using Microsoft.Maui.ApplicationModel;
 
 var downloader = new ModelDownloader();
 var progress = new Progress<(string FileName, long BytesRead, long TotalBytes)>(p =>
@@ -118,21 +113,21 @@ var progress = new Progress<(string FileName, long BytesRead, long TotalBytes)>(
     if (p.TotalBytes > 0)
     {
         double percentage = (double)p.BytesRead / p.TotalBytes;
-        // Update your UI ProgressBar on the main thread
-        MainThread.BeginInvokeOnMainThread(() => {
-            MyProgressBar.Progress = percentage;
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            downloadProgressBar.Progress = percentage;
         });
     }
 });
 
-// Download model files directly to the mobile app's local storage path
+// Download model assets directly to device application storage
 string modelPath = await downloader.GetModelPathAsync("tiny", progress);
 ```
 
 ---
 
-## ⚡ Performance Optimization Tips
+## Mobile Performance Optimization Guidelines
 
-- **Use the `tiny` or `base` Models**: These models are highly optimized for CPU-only inference on mobile, offering a runtime speed that is faster than real-time (RTF < 1.0) while keeping memory usage under 300MB.
-- **Compute Type**: Leave compute type set to `default` or use `int8` (8-bit quantization) on Android/iOS to reduce memory footprint and speed up operations.
-- **Avoid UI Thread Blocking**: Always run Whisper initialization (`builder.Build()`) and transcription (`model.Transcribe()`) on a background thread using `Task.Run` to prevent freezing the mobile UI.
+- **Model Selection**: Deploy the `tiny` or `base` models for mobile inference. These provide real-time factor (RTF) performance below 1.0 while maintaining memory consumption under 300 MB.
+- **Quantization**: Use `computeType: "default"` or `"int8"` to reduce runtime memory footprint and maximize SIMD efficiency on ARM64.
+- **UI Thread Decoupling**: Always offload model initialization and transcription tasks to worker threads via `Task.Run` to prevent freezing the main UI thread.

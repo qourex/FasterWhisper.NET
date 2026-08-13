@@ -1,16 +1,17 @@
 ## Description
 
-<!-- What does this PR do? -->
+<!-- Provide a clear, technical description of the proposed changes. -->
 
 ## Related Issues
 
-<!-- Fixes #123 -->
+<!-- Reference related issues: e.g. Fixes #123 -->
 
-## Checklist
+## Verification Checklist
 
-- [ ] Code builds without warnings (`dotnet build -c Release`)
-- [ ] Unit tests pass (`dotnet test --filter "Category!=Integration"`)
-- [ ] Formatting is correct (`dotnet format --verify-no-changes`)
-- [ ] XML doc comments added for new public APIs
-- [ ] CHANGELOG.md updated (if user-facing change)
-- [ ] No new `printf`/debug statements in native code
+- [ ] Solution builds cleanly without warnings (`dotnet build -c Release`)
+- [ ] Unit and integration tests pass (`dotnet test tests\Qourex.FasterWhisper.NET.Tests -c Release`)
+- [ ] Code formatted per project conventions (`dotnet format --verify-no-changes`)
+- [ ] XML documentation comments added or updated for modified public APIs
+- [ ] CHANGELOG.md updated if changes are user-facing
+- [ ] Documentation and README updated without emojis
+- [ ] No unmanaged debug or log statements in native C++ code

@@ -1,12 +1,12 @@
-# Advanced Usage & Features
+# Advanced Features and Optimization
 
-FasterWhisper.NET includes a suite of advanced APIs, optimization pathways, and diagnostic tools designed for high-throughput server environments, low-latency live streams, and embedded use cases.
+FasterWhisper.NET includes advanced APIs and optimization pathways engineered for high-throughput server architectures, real-time streaming services, and resource-constrained environments.
 
 ---
 
-## 🛠️ Fluent Model Builder
+## Fluent Model Builder
 
-For a cleaner, type-safe, and self-documenting configuration experience, use the `WhisperModelBuilder`. It allows you to specify target devices, compute types, active VAD segmentation, and audio post-processing pipelines inline:
+The `WhisperModelBuilder` provides a strongly-typed, discoverable fluent interface for model instantiation, device allocation, replica scaling, and pre-processing pipeline configuration:
 
 ```csharp
 using Qourex.FasterWhisper.NET;
@@ -25,29 +25,30 @@ var segments = model.Transcribe("meeting.wav");
 
 ---
 
-## 👥 Concurrency & Multi-Replica Execution
+## Concurrency and Multi-Replica Execution
 
-By default, the `WhisperModel` class serializes transcription requests using a thread-safe internal semaphore. If your application needs to handle multiple concurrent transcription requests (such as in an ASP.NET Core web server), loading multiple model instances will bloat your RAM/VRAM.
+By default, `WhisperModel` coordinates transcription requests using an internal `SemaphoreSlim` to ensure thread safety. In high-concurrency environments (such as ASP.NET Core web APIs), loading multiple independent model instances leads to unnecessary memory duplication.
 
 ### Shared-Weight Replica Pools
-To solve this, FasterWhisper.NET allows you to initialize the model with multiple execution replicas using `numReplicas > 1` (or `.WithNumReplicas(N)` in the builder). 
-- **CTranslate2** shares the underlying model weights and vocabulary tensors in memory.
-- Only the execution activations are duplicated for each replica, resulting in a minimal memory increase (usually ~50MB per replica for the base model).
+
+FasterWhisper.NET supports multi-replica scaling via the `numReplicas` parameter (or `.WithNumReplicas(N)` in the builder):
+- **CTranslate2 Architecture**: Shares base weight tensors and vocabulary embeddings in memory across all worker replicas.
+- **Memory Footprint**: Only execution activations and workspace buffers are allocated per replica (~50 MB per worker for `base`), avoiding linear memory growth.
 
 ```csharp
-// Load model with 2 replicas sharing weights in memory but running 2 parallel inferences
+// Load model with 2 replicas sharing weights in memory
 using var model = await WhisperModel.LoadAsync(
     modelNameOrPath: "base",
     device: "cpu",
     numReplicas: 2
 );
 
-// Transcribe files concurrently using Task.Run
+// Transcribe multiple files concurrently
 var files = new[] { "audio1.wav", "audio2.wav", "audio3.wav" };
 var tasks = files.Select(file => Task.Run(() =>
 {
     var segments = model.Transcribe(file);
-    Console.WriteLine($"Finished transcribing {file}");
+    Console.WriteLine($"Completed transcription: {file}");
 }));
 
 await Task.WhenAll(tasks);
@@ -55,13 +56,15 @@ await Task.WhenAll(tasks);
 
 ---
 
-## ⚡ Batched Inference Pipeline
+## Batched Inference Pipeline
 
-For high-throughput processing of large audio archives or long podcasts, using standard transcription processes one segment sequentially. The `BatchedInferencePipeline` speeds this up:
-1. It uses Silero VAD to segment the long audio file into individual speech chunks.
-2. It groups these chunks together into a single batch (up to `batchSize`).
-3. It runs inference concurrently on the batch, taking advantage of GPU tensor cores or multi-core CPU SIMD.
-This typically yields a **1.5x to 3x** speedup over sequential execution.
+When transcribing extended audio recordings (e.g., podcasts, depositions, lectures), sequential 30-second window processing underutilizes modern GPU tensor cores. The `BatchedInferencePipeline` optimizes throughput:
+
+1. Partitions audio into distinct speech segments using Silero VAD.
+2. Combines segments into parallel batches (up to `batchSize`).
+3. Executes batch inference concurrently via CTranslate2.
+
+This yields a **1.5x to 3x throughput improvement** over sequential processing on CUDA devices.
 
 ```csharp
 using Qourex.FasterWhisper.NET;
@@ -69,47 +72,45 @@ using Qourex.FasterWhisper.NET;
 using var model = await WhisperModel.LoadAsync("base", device: "cuda");
 using var pipeline = new BatchedInferencePipeline(model, batchSize: 8);
 
-var result = pipeline.Transcribe("long_podcast.mp3");
+var result = pipeline.Transcribe("extended_recording.mp3");
 foreach (var segment in result.Segments)
 {
-    Console.WriteLine($"[{segment.Start}s -> {segment.End}s] {segment.Text}");
+    Console.WriteLine($"[{segment.Start:F2}s -> {segment.End:F2}s] {segment.Text}");
 }
 ```
 
 ---
 
-## 🗣️ Voice Activity Detection (VAD)
+## Voice Activity Detection (VAD)
 
-**Silero VAD v5** runs natively via ONNX Runtime to identify speech boundaries. The VAD ONNX model weights (`silero_vad.onnx`) are automatically downloaded on first use.
+Silero VAD v5 executes natively via ONNX Runtime to identify speech boundaries. The model binary (`silero_vad.onnx`) is resolved and cached locally on first use.
 
 > [!TIP]
-> Enabling VAD is highly recommended for long audio files. It filters out silent intervals, preventing the model from hallucinating repetitive loops or blank transcripts. It also speeds up inference by avoiding processing silent audio sections.
+> Enabling VAD is strongly recommended for long audio files. By filtering out unvoiced intervals, VAD prevents the model from generating hallucinated text during background noise and reduces total compute duration.
 
 ```csharp
 var vadOptions = new VadOptions
-```
-```csharp
 {
     Enabled              = true,   // Enable Silero VAD segmentation
-    Threshold            = 0.5f,   // Speech probability threshold (0.0–1.0)
-    MinSpeechDurationMs  = 250,    // Discard speech segments shorter than this
-    MinSilenceDurationMs = 100     // Split segments when silence exceeds this
+    Threshold            = 0.5f,   // Speech probability threshold (0.0 to 1.0)
+    MinSpeechDurationMs  = 250,    // Discard speech intervals shorter than 250ms
+    MinSilenceDurationMs = 1000    // Split segments on silence exceeding 1000ms
 };
 
-var segments = model.Transcribe("meeting.mp3", language: null, vadOptions: vadOptions);
+var segments = model.Transcribe("recording.mp3", language: null, vadOptions: vadOptions);
 ```
 
 ---
 
-## ⏱️ Word-Level Timestamps
+## Word-Level Timestamps
 
-If you need precise word-by-word timestamps (for karaoke-style captions or alignment tasks), enable CTranslate2's native cross-attention alignment:
+For precise subtitle synchronization, interactive media players, and search indexing, enable cross-attention alignment:
 
 ```csharp
 var options = new WhisperOptions
 {
-    WordTimestamps   = true,
-    MedianFilterWidth = 7     // Smoothing width for the cross-attention matrix
+    WordTimestamps    = true,
+    MedianFilterWidth = 7 // Smoothing kernel width for cross-attention matrix
 };
 
 var segments = model.Transcribe("interview.wav", language: "en", options: options);
@@ -120,19 +121,19 @@ foreach (var segment in segments)
 
     foreach (var word in segment.Words)
     {
-        Console.WriteLine($"  '{word.Word}' [{word.Start:F2}s -> {word.End:F2}s] (Confidence: {word.Probability:P0})");
+        Console.WriteLine($"  '{word.Word}' [{word.Start:F2}s -> {word.End:F2}s] (Confidence: {word.Probability:P1})");
     }
 }
 ```
 
 ---
 
-## 💿 In-Memory Model Loading
+## In-Memory Model Loading
 
-For environments with restricted file access, encrypted storage, or embedded databases, you can load Whisper models directly from byte arrays:
+For environments with encrypted storage, database-backed model binaries, or restricted disk access, models can be loaded directly from memory:
 
 > [!WARNING]
-> The loaded files dictionary **must** contain either `vocabulary.txt` or `vocabulary.json` to properly initialize the Whisper tokenizer. If the vocabulary file is missing, the initializer will throw a `KeyNotFoundException`.
+> The dictionary **must** include either `vocabulary.txt` or `vocabulary.json` alongside `model.bin` and `config.json`. If vocabulary data is omitted, initialization will throw a `KeyNotFoundException`.
 
 ```csharp
 var modelFiles = new Dictionary<string, byte[]>
@@ -154,96 +155,99 @@ var segments = model.Transcribe("audio.wav", language: "en");
 
 ---
 
-## 🌍 Language Detection
+## Language Detection and Multi-Lingual Processing
 
-You can let the library automatically detect the spoken language during transcription, or explicitly invoke the detector beforehand:
+The SDK supports automated language identification across 99+ supported languages, with confidence scoring:
 
 ```csharp
-float[] pcm = LoadAudioAsPcm("unknown_speech.wav"); // 16 kHz mono float32
-var languages = model.DetectLanguage(pcm);
+float[] pcm = audioProcessor.LoadWav("multilingual_sample.wav");
+var detectedLanguages = model.DetectLanguage(pcm);
 
-// Print the top 3 detected languages
-foreach (var (language, probability) in languages.Take(3))
+// Inspect top candidate languages
+foreach (var (language, probability) in detectedLanguages.Take(3))
 {
-    Console.WriteLine($"Language: {language} (Probability: {probability:P1})");
+    Console.WriteLine($"Language: {language} (Confidence: {probability:P1})");
 }
 
-// Auto-detect during transcription
-var segments = model.Transcribe("unknown_speech.wav", language: null);
+// Automatically detect during transcription
+var segments = model.Transcribe("multilingual_sample.wav", language: null);
 ```
 
 ---
 
-## 🎵 Audio Preprocessing & Formats
+## Audio Preprocessing and Format Support
 
-FasterWhisper.NET provides built-in DSP operations to clean up audio signals before sending them to the neural network:
+FasterWhisper.NET includes built-in Digital Signal Processing (DSP) routines executed prior to spectrogram extraction:
 
 ```csharp
 var options = new WhisperOptions
 {
-    NormalizeAudio    = true,   // RMS volume normalization (Default: true)
-    CutLowFrequencies = true,   // High-pass filter at 80 Hz to remove DC offset/hum (Default: true)
-    PreEmphasis       = false,  // Boost high-frequency clarity
-    DenoiseAudio      = false   // Spectral noise gate for background static noise removal
+    NormalizeAudio    = true,   // Standardize signal amplitude (-20 dBFS target)
+    CutLowFrequencies = true,   // 80 Hz high-pass filter (removes DC offset and hum)
+    PreEmphasis       = false,  // First-order high-frequency boost
+    DenoiseAudio      = false   // Spectral subtraction for stationary background noise
 };
 ```
 
-### Supported Formats
-| Format | Decoding Pathway |
+### Supported Media Formats
+
+| Format | Ingestion Pipeline |
 | :--- | :--- |
-| **WAV (PCM)** | Direct, fast managed decoding (8/16/24/32-bit PCM, IEEE floats, A-law, μ-law). |
-| **MP3, MP4, FLAC, Opus** | Decoded using a local **FFmpeg** subprocess. (FFmpeg must be installed and in the system `PATH`). |
-| **Raw Arrays** | Pass custom `float[]` PCM data directly (requires 16kHz, single-channel mono). |
+| **WAV (PCM / Float / Log-PCM)** | Direct managed decoding for 8/16/24/32-bit PCM, 32/64-bit IEEE float, A-law, and μ-law. |
+| **MP3, MP4, FLAC, Opus, AAC** | Decoded automatically via local FFmpeg subprocess when present on system `PATH`. |
+| **Raw Buffer** | Direct ingestion of 16 kHz mono `float[]` PCM arrays. |
 
 ---
 
-## 📝 Text Post-Processing Filters
+## Text Post-Processing Filters
 
-Whisper transcripts occasionally contain filler words or stutters. You can enable automatic post-inference cleanup filters:
+Output streams can be cleaned up using integrated text filtering rules:
 
 ```csharp
 var options = new WhisperOptions
 {
-    FilterFillerWords       = true,  // Removes "uh", "um", "ah", "eh", "mhm", etc.
+    FilterFillerWords       = true,  // Removes verbal hesitations ("uh", "um", "ah", "eh", "mhm")
     PruneStutters           = true,  // Removes consecutive duplicate words ("the the" -> "the")
-    ConditionOnPreviousText = true   // Feeds previous segment text back to maintain context (Default: true)
+    ConditionOnPreviousText = true   // Retains preceding context for window continuity
 };
 ```
 
 ---
 
-## 📈 Audio Quality Assessment
+## Audio Quality Assessment
 
-Before committing computing resources to transcription, you can run the built-in non-intrusive analyzer to assess the audio signal quality. It provides a quality grade and actionable suggestions:
+Evaluate signal quality before invoking compute-heavy transcription models using non-intrusive SNR and clipping analysis:
 
 ```csharp
 float[] samples = WhisperModel.LoadAudio("input.wav");
 var report = AudioQualityReport.Assess(samples);
 
-Console.WriteLine($"Quality Grade: {report.OverallGrade}"); // Excellent, Good, Fair, Poor
-Console.WriteLine($"Signal-to-Noise Ratio (SNR): {report.SignalToNoiseRatio:F1} dB");
+Console.WriteLine($"Signal Quality Grade: {report.OverallGrade}"); // Excellent, Good, Fair, Poor
+Console.WriteLine($"Signal-to-Noise Ratio: {report.SignalToNoiseRatio:F1} dB");
 
 foreach (var suggestion in report.Suggestions)
 {
-    Console.WriteLine($"Diagnostic: {suggestion}");
+    Console.WriteLine($"Recommendation: {suggestion}");
 }
 ```
 
 ---
 
-## 📝 Subtitle Exporting
+## Subtitle and Transcript Exporting
 
-Easily convert transcription results into standard subtitle formats for video players and media indexing pipelines:
+Format transcription segments directly into standardized subtitle and data interchange formats:
 
 ```csharp
-var segments = model.Transcribe("movie.wav");
+var segments = model.Transcribe("presentation.wav");
 
-// 1. Export as SRT string
-string srtContent = SubtitleExporter.ToSrt(segments);
-File.WriteAllText("movie.srt", srtContent);
+// 1. Export as SubRip Subtitle (SRT) format string
+string srtData = SubtitleExporter.ToSrt(segments);
+File.WriteAllText("presentation.srt", srtData);
 
-// 2. Export as WebVTT directly to a file path
-SubtitleExporter.WriteVtt(segments, "movie.vtt");
+// 2. Export directly to WebVTT file
+SubtitleExporter.WriteVtt(segments, "presentation.vtt");
 
-// 3. Other formats: ToTsv(segments) or ToJson(segments) are also available
+// 3. Export as TSV or JSON data structures
+string tsvData = SubtitleExporter.ToTsv(segments);
+string jsonData = SubtitleExporter.ToJson(segments);
 ```

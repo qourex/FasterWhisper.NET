@@ -2,7 +2,7 @@
 
 # FasterWhisper.NET.Gpu
 
-**by [Qourex](https://qourex.com)** — Bringing high-performance GPU-accelerated speech recognition to .NET
+**by [Qourex](https://qourex.com)** — GPU-Accelerated Speech Recognition for .NET
 
 [![Build & Test](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml/badge.svg)](https://github.com/qourex/fasterwhisper.net/actions/workflows/build.yml)
 [![NuGet](https://img.shields.io/nuget/v/FasterWhisper.NET.Gpu.svg?style=flat-square&logo=nuget&label=NuGet)](https://www.nuget.org/packages/FasterWhisper.NET.Gpu)
@@ -11,64 +11,65 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 
-📖 **[Read the Documentation](https://qourex.github.io/FasterWhisper.NET/)** for detailed guides, .NET 10.0 samples, and mobile deployment walkthroughs.
+**[Documentation Portal](https://qourex.github.io/FasterWhisper.NET/)** — Guides, API references, .NET 10.0 samples, and mobile deployment walkthroughs.
 
 ---
 
-**FasterWhisper.NET.Gpu** is the GPU-accelerated release of the C# port of the popular Python library faster-whisper. It bundles pre-compiled native binaries built with **CUDA** and **cuDNN** enabled for CTranslate2, delivering blazing-fast transcription times on NVIDIA GPUs.
+**FasterWhisper.NET.Gpu** is the GPU-accelerated distribution of FasterWhisper.NET. It bundles pre-compiled native binaries built with **NVIDIA CUDA** and **cuDNN** enabled for CTranslate2, delivering high-throughput speech recognition on NVIDIA graphics cards.
 
-For CPU-only execution without CUDA prerequisites, please use the base [FasterWhisper.NET](https://www.nuget.org/packages/FasterWhisper.NET) package.
-
----
-
-## ⚡ Key GPU Advantages
-
-- **🎮 CUDA & cuDNN Acceleration** — Native GPU-bound inference for Whisper models.
-- **🚀 Flash Attention Support** — Substantial throughput improvements on Ampere (RTX 30-series) and newer architectures.
-- **📉 Mixed Precision Compute** — Full support for `"float16"` and `"int8_float16"` compute types to minimize GPU memory (VRAM) footprint.
-- **🔄 Parallel Mel Extraction** — Managed multi-threaded audio pipeline maximizing core usage before GPU scheduling.
+For CPU-only environments without CUDA dependencies, use the base [FasterWhisper.NET](https://www.nuget.org/packages/FasterWhisper.NET) package.
 
 ---
 
-## 📦 Installation
+## Key GPU Advantages
 
-To install the GPU-enabled package:
+- **CUDA and cuDNN Acceleration** — Native GPU execution for all Whisper model variants.
+- **Flash Attention Support** — Significant throughput improvements on Ampere (RTX 30-series), Ada Lovelace (RTX 40-series), and Blackwell (RTX 50-series) architectures.
+- **Mixed Precision Compute** — Native support for `"float16"` and `"int8_float16"` compute precisions to reduce VRAM footprint while maximizing tensor core utilization.
+- **Parallel Mel Feature Extraction** — Multi-threaded DSP audio preprocessing pipeline executing on CPU threads before GPU batch scheduling.
+
+---
+
+## Installation
+
+Install the GPU-enabled package via the .NET CLI:
 
 ```bash
 dotnet add package FasterWhisper.NET.Gpu
 ```
 
-## 🚀 CUDA Prerequisites
+---
 
-To run this package with GPU acceleration (`device: "cuda"`), you must have the following NVIDIA runtimes installed and configured on your host system:
+## CUDA Prerequisites
 
-### Windows
-1. **NVIDIA CUDA Toolkit 12.x (Compiled with 12.8)** — [CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 8.9.x** — [cuDNN Downloads Archive](https://developer.nvidia.com/cudnn-downloads-archive)
+To run this package with GPU acceleration (`device: "cuda"`), verify that the host system has compatible NVIDIA runtime libraries installed:
 
-Ensure that the following DLLs from these installations are available in your system `PATH`:
-- `cudart64_12.dll` (or other CUDA 12 runtime versions)
+### Windows Requirements
+1. **NVIDIA CUDA Toolkit 12.x** — [CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
+2. **NVIDIA cuDNN 9.x or 8.9.x** — [cuDNN Downloads](https://developer.nvidia.com/cudnn)
+
+Ensure the following dynamic libraries are present in your system `PATH`:
+- `cudart64_12.dll` (or active CUDA 12 runtime)
 - `cublas64_12.dll`
 - `cublasLt64_12.dll`
-- `cudnn64_8.dll` (specifically cuDNN v8)
+- `cudnn64_*.dll`
 
-### Linux / WSL2
-1. **NVIDIA CUDA Toolkit 12.x (Compiled with 12.8)** — [WSL/Linux CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 8.9.x** — [cuDNN Downloads Archive](https://developer.nvidia.com/cudnn-downloads-archive)
+### Linux and WSL2 Requirements
+1. **NVIDIA CUDA Toolkit 12.x** — [Linux CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
+2. **NVIDIA cuDNN 9.x or 8.9.x** — [Linux cuDNN Downloads](https://developer.nvidia.com/cudnn)
 
-Ensure that the following shared libraries from these installations are available in your `LD_LIBRARY_PATH` or system library paths (e.g. `/usr/local/cuda/lib64`):
+Ensure the following shared libraries are accessible in `LD_LIBRARY_PATH` or standard library paths (`/usr/local/cuda/lib64`):
 - `libcudart.so.12`
 - `libcublas.so.12`
 - `libcublasLt.so.12`
-- `libcudnn.so.8` (specifically cuDNN v8)
+- `libcudnn.so.*`
 
 ---
 
-## 🐳 Docker Compilation (For Linux GPU Binaries)
+## Docker Compilation for Linux GPU Binaries
 
-For Linux and WSL2 environments, you can compile the CUDA native libraries natively without installing compilers on your host system by using a Docker container.
+For Linux and WSL2 environments, native CUDA binaries can be compiled cleanly using an isolated Docker container without altering host build tools:
 
-Run the following command from the root of the repository:
 ```bash
 docker run --rm --gpus all -v "$(pwd)":/workspace -w /workspace nvcr.io/nvidia/cuda:12.8.0-devel-ubuntu22.04 bash -c "
   apt-get update && \
@@ -80,43 +81,41 @@ docker run --rm --gpus all -v "$(pwd)":/workspace -w /workspace nvcr.io/nvidia/c
   ./build.sh --gpu-only
 "
 ```
-*Note: If your local Docker setup does not have the NVIDIA Container Toolkit configured, you can omit the `--gpus all` flag, as a physical GPU is not required during the compilation step.*
 
-This command compiles the wrapper and automatically stages the output `qourex_fasterwhisper_native.so` and `libctranslate2.so` files under the C# GPU project runtimes directory (`src/Qourex.FasterWhisper.NET.Gpu/runtimes/linux-x64/native/`).
+This compiles the native wrapper and automatically stages `qourex_fasterwhisper_native.so` and `libctranslate2.so` under `src/Qourex.FasterWhisper.NET.Gpu/runtimes/linux-x64/native/`.
 
 ---
 
-## 💻 Quick Start
-
-> [!NOTE]
-> **Concurrency & Thread-Safety:** `WhisperModel` is thread-safe and supports concurrent transcription calls. Under the hood, concurrent calls are queued and processed safely using a `SemaphoreSlim`. If you configure the model with `NumReplicas > 1`, transcription calls will execute concurrently utilizing CTranslate2's native thread-safe replica pool, sharing the same loaded model weights in memory to minimize VRAM overhead.
+## Quick Start: GPU Transcription
 
 ```csharp
+using System;
+using System.Threading.Tasks;
 using Qourex.FasterWhisper.NET;
 
-// 1. Download and load the model on CUDA (cached to ~/.cache/qourex-fasterwhisper)
+// 1. Download and load the model on CUDA
 using var model = await WhisperModel.LoadAsync(
     modelNameOrPath: "large-v3",
-    device:          "cuda",       // Use GPU
+    device:          "cuda",       // Target GPU
     computeType:     "float16",    // Half-precision for optimal GPU performance
-    flashAttention:  true          // Enable Flash Attention (requires compute capability >= 8.0)
+    flashAttention:  true          // Flash Attention (requires compute capability >= 8.0)
 );
 
-// 2. Configure transcription options
+// 2. Configure transcription parameters
 var options = new WhisperOptions
 {
-    BeamSize = 5,
+    BeamSize       = 5,
     WordTimestamps = true
 };
 
-// 3. Transcribe
+// 3. Execute transcription
 var segments = model.Transcribe(
-    mediaPath:  "audio.wav",
-    language:   "en",
-    options:    options
+    mediaPath: "audio.wav",
+    language:  "en",
+    options:   options
 );
 
-// 4. Print timing and text
+// 4. Output results
 foreach (var segment in segments)
 {
     Console.WriteLine($"[{segment.Start:F2}s -> {segment.End:F2}s] {segment.Text}");
@@ -125,30 +124,28 @@ foreach (var segment in segments)
 
 ---
 
-## 🔧 GPU Configuration Options
+## GPU Configuration Options
 
-### Compute Types
-
-Choose the optimal precision for your GPU memory and compute capabilities:
+### Compute Precision Types
 
 | Compute Type | Description |
-|:-------------|:------------|
-| `"default"` | Selects `float16` if supported by the GPU, else fallback |
-| `"float16"` | Recommended. Fast FP16 execution, lowest VRAM utilization |
-| `"float32"` | Standard 32-bit floating point precision |
-| `"int8_float16"` | INT8 quantized calculations with FP16 storage |
+| :--- | :--- |
+| `"default"` | Selects `float16` if supported by the GPU, with automatic fallback |
+| `"float16"` | Recommended. Fast FP16 execution with lowest VRAM footprint |
+| `"float32"` | Standard 32-bit single-precision floating point |
+| `"int8_float16"` | INT8 quantized compute with FP16 activation storage |
 
 ### Flash Attention
 
-Enable Flash Attention for compatible GPUs:
+Enable Flash Attention for Ampere and newer architectures:
 ```csharp
 flashAttention: true
 ```
-*Note: Flash Attention requires an NVIDIA GPU with compute capability ≥ 8.0 (Ampere architecture or newer, e.g. RTX 30-series, 40-series, A100, H100).*
+*Note: Flash Attention requires an NVIDIA GPU with compute capability ≥ 8.0 (RTX 30-series, RTX 40-series, RTX 50-series, A100, H100).*
 
 ---
 
-## 📄 License
+## License
 
 This package is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 

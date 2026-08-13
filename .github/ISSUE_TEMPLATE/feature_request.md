@@ -1,23 +1,27 @@
 ---
 name: Feature Request
-about: Suggest a new feature or improvement
+about: Propose a technical enhancement or capability for FasterWhisper.NET
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 ---
 
-## Problem Statement
+## Feature Proposal
 
-A clear description of the problem you're trying to solve.
+Provide a clear description of the requested capability or enhancement.
 
-## Proposed Solution
+## Motivation and Use Case
 
-Your suggested approach or feature.
+Explain why this feature is valuable and the architectural scenario it supports.
+
+## Proposed API Design or Architecture
+
+Provide sample code or an architectural breakdown of how the feature would look or behave.
 
 ## Alternatives Considered
 
-Any alternative approaches you've considered.
+Describe any alternative approaches, workarounds, or existing solutions evaluated.
 
 ## Additional Context
 
-Any other context, mockups, or references.
+Provide any reference implementations, benchmarking notes, or upstream links (e.g. CTranslate2 / Whisper).
