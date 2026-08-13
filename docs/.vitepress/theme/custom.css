@@ -26,13 +26,14 @@
   --vp-c-text-2: #334155;
   --vp-c-text-3: #64748b;
 
-  /* Light Theme Inline Code & Code Blocks (Dark Code Blocks in Light Mode for Maximum Contrast) */
+  /* Light Theme Code - Clean, Crisp & High-Contrast */
   --vp-code-bg: #f1f5f9;
   --vp-code-color: #0f172a;
-  --vp-code-block-bg: #0b0f19;
-  --vp-code-block-color: #f8fafc;
+  --vp-code-block-bg: #f8fafc;
+  --vp-code-block-color: #0f172a;
+  --vp-code-line-highlight-color: rgba(37, 99, 235, 0.08);
 
-  /* Layout Chrome */
+  /* Layout Chrome Light */
   --vp-nav-bg-color: rgba(255, 255, 255, 0.85);
   --vp-sidebar-bg-color: #f8fafc;
 
@@ -63,8 +64,9 @@
   /* Dark Theme Code */
   --vp-code-bg: rgba(255, 255, 255, 0.06);
   --vp-code-color: #f1f5f9;
-  --vp-code-block-bg: #050810;
+  --vp-code-block-bg: #070a12;
   --vp-code-block-color: #f8fafc;
+  --vp-code-line-highlight-color: rgba(59, 130, 246, 0.12);
 
   /* Layout Chrome Dark */
   --vp-nav-bg-color: rgba(9, 13, 22, 0.85);
@@ -90,12 +92,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(148, 163, 184, 0.45);
 }
 
 /* ==========================================================================
@@ -313,7 +315,7 @@
 }
 
 /* ==========================================================================
-   Code Blocks
+   Code Blocks (Light Mode = Clean Slate-50, Dark Mode = Deep Slate-950)
    ========================================================================== */
 
 .vp-doc div[class*='language-'] {
@@ -321,16 +323,16 @@
   border: 1px solid var(--vp-c-border) !important;
   background-color: var(--vp-code-block-bg) !important;
   margin: 1.5rem 0 !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
   overflow: hidden !important;
 }
 
 .dark .vp-doc div[class*='language-'] {
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
 }
 
 .vp-doc div[class*='language-'] pre {
-  padding: 16px 20px !important;
+  padding: 18px 20px !important;
   line-height: 1.65 !important;
   background-color: transparent !important;
 }
@@ -344,16 +346,26 @@
   font-size: 0.72rem !important;
   font-weight: 600 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  letter-spacing: 0.06em !important;
   color: var(--vp-c-text-3) !important;
   top: 10px !important;
   right: 14px !important;
 }
 
+/* Copy Code Button */
 .vp-doc div[class*='language-'] .copy {
   border-radius: 6px !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: var(--vp-c-bg-elv) !important;
+  border: 1px solid var(--vp-c-border) !important;
+  color: var(--vp-c-text-2) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.15s ease !important;
+}
+
+.vp-doc div[class*='language-'] .copy:hover {
+  background-color: var(--vp-c-bg-soft) !important;
+  color: var(--vp-c-text-1) !important;
+  border-color: var(--vp-c-brand-1) !important;
 }
 
 /* ==========================================================================
