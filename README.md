@@ -206,7 +206,7 @@ foreach (var segment in segments)
 
 ## Sample Applications
 
-A suite of 10 sample applications targeting **.NET 10.0** is provided under the [samples/](file:///g:/Git-Repos/FasterWhisper/samples) directory:
+A suite of 10 sample applications targeting **.NET 10.0** is provided under the [samples/](samples) directory:
 
 - **Console Application (`Cpu` / `Gpu`)** — Minimal CLI showcasing model downloading progress, parameter configuration, and transcription output.
 - **ASP.NET Core Minimal API (`Cpu` / `Gpu`)** — Production-grade REST API (`POST /api/transcribe`) demonstrating thread pool offloading and singleton model registration.
@@ -214,7 +214,7 @@ A suite of 10 sample applications targeting **.NET 10.0** is provided under the 
 - **Windows Forms (`Cpu` / `Gpu`)** — Desktop interface utilizing native **.NET 10.0 Dark Mode** and background worker threads for UI responsiveness.
 - **.NET MAUI (`Cpu` / `Gpu`)** — Cross-platform application demonstrating mobile asset extraction and native file picker integration.
 
-For setup details and execution commands, see the [Samples Documentation](file:///g:/Git-Repos/FasterWhisper/samples/README.md).
+For setup details and execution commands, see the [Samples Documentation](samples/README.md).
 
 ---
 
