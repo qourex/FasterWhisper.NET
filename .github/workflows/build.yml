@@ -11,8 +11,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: windows-latest
+  test:
+    name: Test Matrix (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -38,37 +43,49 @@ jobs:
     - name: Build
       run: dotnet build Qourex.FasterWhisper.slnx -c Release
 
-    # Note: Integration tests require native DLLs (qourex_fasterwhisper_native.dll, ctranslate2.dll)
-    # which are only available after running build.ps1. Unit tests can run without them.
-    - name: Run unit tests
+    - name: Run unit and smoke tests
       run: dotnet test tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release --no-build --filter "Category!=Integration" -v normal --collect:"XPlat Code Coverage" --results-directory ./coverage
 
-    - name: Upload coverage
+    - name: Upload coverage (Windows only)
+      if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v4
-      if: always()
       with:
         name: coverage-report
         path: ./coverage/**/coverage.cobertura.xml
         retention-days: 14
 
+  pack:
+    name: Package & Checksum Generation
+    needs: test
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj
+
+    - name: Build
+      run: dotnet build src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release
+
     - name: Pack NuGet (CPU)
       run: dotnet pack src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release --no-build -o ./artifacts
 
-    - name: Upload NuGet artifacts
+    - name: Generate SHA-256 Checksums
+      shell: pwsh
+      run: powershell -File scripts/generate-checksums.ps1 -OutputPath artifacts/SHA256SUMS.txt
+
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: nuget-packages
-        path: ./artifacts/*.nupkg
+        name: build-artifacts
+        path: ./artifacts/*
         retention-days: 30
-
-    # integration-tests:
-    #   runs-on: [self-hosted, windows, x64]
-    #   needs: build
-    #   # Requires: native DLLs built via build.ps1
-    #   # Enable this job when a self-hosted runner with CTranslate2 is available
-    #   steps:
-    #   - uses: actions/checkout@v4
-    #   - name: Build native
-    #     run: ./build.ps1
-    #   - name: Run integration tests
-    #     run: dotnet test tests/Qourex.FasterWhisper.NET.Tests -c Release --filter "Category=Integration"

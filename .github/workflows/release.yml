@@ -204,6 +204,10 @@ jobs:
           powershell -File scripts/cleanup_nupkg.ps1 $_.FullName
         }
 
+    - name: Generate SHA-256 Checksums
+      shell: pwsh
+      run: powershell -File scripts/generate-checksums.ps1 -OutputPath artifacts/SHA256SUMS.txt
+
     - name: NuGet Login (OIDC Trusted Publishing)
       uses: NuGet/login@v1
       id: login
@@ -221,3 +225,4 @@ jobs:
         files: |
           ./artifacts/*.nupkg
           ./artifacts/*.snupkg
+          ./artifacts/SHA256SUMS.txt

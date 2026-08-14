@@ -10,6 +10,7 @@ concurrency:
 
 jobs:
   lint:
+    name: Code Formatting & Quality
     runs-on: windows-latest
 
     steps:
@@ -23,14 +24,36 @@ jobs:
           9.0.x
           10.0.x
 
-    - name: Restore
+    - name: Restore dependencies
       run: dotnet restore Qourex.FasterWhisper.slnx
 
-    - name: Check formatting
+    - name: Check code formatting
       run: dotnet format Qourex.FasterWhisper.slnx --verify-no-changes --verbosity diagnostic
 
-    - name: Build (Debug)
-      run: dotnet build Qourex.FasterWhisper.slnx -c Debug --no-restore
+  test-matrix:
+    name: Test Matrix (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
-    - name: Run unit tests
-      run: dotnet test tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Debug --no-build --filter "Category!=Integration" --collect:"XPlat Code Coverage"
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj
+
+    - name: Build tests
+      run: dotnet build tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release
+
+    - name: Run unit & smoke tests
+      run: dotnet test tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release --no-build --filter "Category!=Integration" --logger "console;verbosity=normal"
