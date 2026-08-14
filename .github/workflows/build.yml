@@ -37,22 +37,10 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: ${{ runner.os }}-nuget-
 
-    # Windows builds the entire solution suite
-    - name: Restore Full Solution (Windows)
-      if: matrix.os == 'windows-latest'
-      run: dotnet restore Qourex.FasterWhisper.slnx
-
-    - name: Build Full Solution (Windows)
-      if: matrix.os == 'windows-latest'
-      run: dotnet build Qourex.FasterWhisper.slnx -c Release --no-restore
-
-    # Linux and macOS restore and build the core SDK and test suite
-    - name: Restore Core & Tests (Linux / macOS)
-      if: matrix.os != 'windows-latest'
+    - name: Restore dependencies
       run: dotnet restore tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj
 
-    - name: Build Core & Tests (Linux / macOS)
-      if: matrix.os != 'windows-latest'
+    - name: Build Core & Tests
       run: dotnet build tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release --no-restore
 
     - name: Run unit and smoke tests
@@ -85,8 +73,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj
 
-    - name: Build
-      run: dotnet build src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release
+    - name: Build Core Library
+      run: dotnet build src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release --no-restore
 
     - name: Pack NuGet (CPU)
       run: dotnet pack src/Qourex.FasterWhisper.NET/Qourex.FasterWhisper.NET.csproj -c Release --no-build -o ./artifacts
