@@ -37,11 +37,23 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: ${{ runner.os }}-nuget-
 
-    - name: Restore dependencies
+    # Windows builds the entire solution suite
+    - name: Restore Full Solution (Windows)
+      if: matrix.os == 'windows-latest'
       run: dotnet restore Qourex.FasterWhisper.slnx
 
-    - name: Build
-      run: dotnet build Qourex.FasterWhisper.slnx -c Release
+    - name: Build Full Solution (Windows)
+      if: matrix.os == 'windows-latest'
+      run: dotnet build Qourex.FasterWhisper.slnx -c Release --no-restore
+
+    # Linux and macOS restore and build the core SDK and test suite
+    - name: Restore Core & Tests (Linux / macOS)
+      if: matrix.os != 'windows-latest'
+      run: dotnet restore tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj
+
+    - name: Build Core & Tests (Linux / macOS)
+      if: matrix.os != 'windows-latest'
+      run: dotnet build tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release --no-restore
 
     - name: Run unit and smoke tests
       run: dotnet test tests/Qourex.FasterWhisper.NET.Tests/Qourex.FasterWhisper.NET.Tests.csproj -c Release --no-build --filter "Category!=Integration" -v normal --collect:"XPlat Code Coverage" --results-directory ./coverage
