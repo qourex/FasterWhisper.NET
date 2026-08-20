@@ -44,8 +44,8 @@
 
   <ItemGroup>
     <!-- Include compiled native DLLs and SOs in the build output and NuGet package -->
-    <Content Include="runtimes\win-x64\native\*.dll" Link="runtimes\win-x64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes\win-x64\native\" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="runtimes\linux-x64\native\*.so" Link="runtimes\linux-x64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes\linux-x64\native\" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="runtimes\win-x64\native\*.dll" Link="runtimes\win-x64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes/win-x64/native/" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="runtimes\linux-x64\native\*.so" Link="runtimes\linux-x64\native\%(Filename)%(Extension)" Pack="true" PackagePath="runtimes/linux-x64/native/" CopyToOutputDirectory="PreserveNewest" />
     <!-- Include local README in nuget pack -->
     <None Include="../../README_GPU.md" Pack="true" PackagePath="README.md" />
     <None Include="../../THIRD_PARTY_NOTICES.md" Pack="true" PackagePath="" />
