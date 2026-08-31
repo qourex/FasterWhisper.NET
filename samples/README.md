@@ -53,7 +53,7 @@ Cross-platform mobile and desktop application templates demonstrating raw resour
 - **.NET 10.0 SDK** (or later).
 - For GPU-accelerated projects:
   - NVIDIA GPU with CUDA support.
-  - **CUDA Toolkit 12.x** and **cuDNN 9.x** runtime dynamic libraries in the system `PATH`.
+  - **CUDA Toolkit 12.x** and **cuDNN 8.9.x** (`cudnn64_8.dll`) runtime dynamic libraries in the system `PATH`.
 
 ### 1. Build the Entire Solution
 To build all projects in Release configuration:

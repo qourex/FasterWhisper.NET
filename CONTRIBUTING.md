@@ -27,7 +27,7 @@ Thank you for your interest in contributing to FasterWhisper.NET. This document 
    - **CMake 3.18+**
    - **Visual Studio 2022 / MSVC Build Tools** for native C++ compilation
    - **Intel oneAPI Math Kernel Library (oneMKL)** (optional for CPU BLAS performance)
-   - **CUDA Toolkit 12.x and cuDNN 9.x** (optional for GPU builds)
+   - **CUDA Toolkit 12.x and cuDNN 8.9.x** (optional for GPU builds)
 3. **Build the Native Library**:
    > [!IMPORTANT]
    > When compiling the C++ wrapper manually on Windows, run `cmake` and build commands from a **Visual Studio Developer Command Prompt** (or a terminal with `vcvars64.bat` loaded).

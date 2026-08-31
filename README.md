@@ -261,7 +261,7 @@ The following benchmarks demonstrate throughput and memory characteristics acros
 - **CPU**: Intel Core i7-4790 (4 Cores / 8 Threads)
 - **RAM**: 32 GB DDR3
 - **GPU**: NVIDIA GeForce GTX 1070 Ti (8 GB VRAM)
-- **CUDA**: 12.4 / cuDNN 9.1
+- **CUDA**: 12.4 / cuDNN 8.9.7
 - **Operating System**: Windows 11 Pro
 - **Model**: `faster-distil-whisper-large-v3` (756 million parameters)
 - **Audio Duration**: 972.29 seconds (16.2 minutes)
@@ -606,7 +606,7 @@ string jsonContent = SubtitleExporter.ToJson(segments);
 | **CMake 3.18+** | Native C++ build system | [cmake.org](https://cmake.org/download/) |
 | **Visual Studio 2022** (MSVC) | C++ compiler | [visualstudio.com](https://visualstudio.com) |
 | **CUDA Toolkit 12.x** | GPU builds only | [NVIDIA Developer](https://developer.nvidia.com/cuda-downloads) |
-| **cuDNN 9.x** | GPU builds only | [NVIDIA Developer](https://developer.nvidia.com/cudnn) |
+| **cuDNN 8.9.x** | GPU builds only | [NVIDIA Developer Archive](https://developer.nvidia.com/rdp/cudnn-archive) |
 | **.NET SDK 8.0+** | Managed library build | [dotnet.microsoft.com](https://dotnet.microsoft.com) |
 
 ### Automated Build Script
@@ -634,13 +634,14 @@ The script automatically executes the following steps:
 > CUDA and cuDNN runtimes are required only when initializing models with `device: "cuda"`. CPU execution has no external GPU dependencies.
 
 1. **NVIDIA CUDA Toolkit 12.x** — [Download](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 9.x** — [Download](https://developer.nvidia.com/cudnn)
+2. **NVIDIA cuDNN 8.9.x** — [Download](https://developer.nvidia.com/rdp/cudnn-archive)
+   > **Note on cuDNN versions:** FasterWhisper.NET wraps CTranslate2, which natively links against **cuDNN 8.x** (`cudnn64_8.dll` on Windows / `libcudnn.so.8` on Linux). If you have cuDNN 9 installed on your system, ensure `cudnn64_8.dll` is present in your system `PATH` or in your application's output directory.
 
 Ensure the following dynamic libraries are present in your system `PATH`:
-- `cudart64_*.dll`
-- `cublas64_*.dll`
-- `cublasLt64_*.dll`
-- `cudnn64_*.dll`
+- `cudart64_12.dll`
+- `cublas64_12.dll`
+- `cublasLt64_12.dll`
+- `cudnn64_8.dll`
 
 ### Flash Attention Support
 
@@ -753,7 +754,7 @@ FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 RUN apt-get update && apt-get install -y \
     dotnet-sdk-8.0 \
     libcublas-12-4 \
-    libcudnn9-cuda-12 \
+    libcudnn8 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -774,7 +775,7 @@ docker run --gpus all -it your-whisper-app
 - **Cause**: On Windows, the native wrapper depends on the Visual C++ Redistributable and Intel MKL runtime libraries. On GPU builds, CUDA 12.x and cuDNN runtime DLLs must be located in the system `PATH`.
 - **Resolution**:
   1. Install the [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
-  2. For GPU execution, verify that `cudart64_12.dll`, `cublas64_12.dll`, and `cudnn64_9.dll` reside in your `PATH`. Verify environment setup by testing `device: "cpu"` first.
+  2. For GPU execution, verify that `cudart64_12.dll`, `cublas64_12.dll`, and `cudnn64_8.dll` reside in your `PATH`. Verify environment setup by testing `device: "cpu"` first.
 
 #### Issue: `StackOverflowException` in `StreamingMelExtractor`
 - **Cause**: Supplying an excessively large FFT window size exceeds stack allocation thresholds.
