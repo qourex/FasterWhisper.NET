@@ -10,14 +10,14 @@ FasterWhisper.NET links to optimized native binaries. Ensure the host environmen
 
 ### Windows
 - **CPU and GPU**: Install the [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe).
-- **GPU (CUDA)**: Requires NVIDIA CUDA Toolkit 12.x and cuDNN 9.x runtime libraries to be accessible in the system `PATH`.
+- **GPU (CUDA)**: Requires NVIDIA CUDA Toolkit 12.x and cuDNN 8.9.x (`cudnn64_8.dll`) runtime libraries to be accessible in the system `PATH`.
 
 ### Linux
 - **CPU**: Install OpenBLAS or an equivalent BLAS library:
   ```bash
   sudo apt-get update && sudo apt-get install -y libopenblas-dev
   ```
-- **GPU (CUDA)**: Requires NVIDIA CUDA 12.x driver/toolkit and cuDNN 9.x libraries on the host system.
+- **GPU (CUDA)**: Requires NVIDIA CUDA 12.x driver/toolkit and cuDNN 8.9.x (`libcudnn.so.8`) libraries on the host system.
 
 ### macOS
 - Uses the built-in Apple Accelerate framework for hardware-accelerated BLAS operations on both Apple Silicon (ARM64) and Intel (x64) architectures. No external BLAS dependencies are required.

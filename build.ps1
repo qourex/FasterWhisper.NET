@@ -45,6 +45,19 @@ if (Test-Path $VsCMakeDir) {
     $env:PATH = "$VsCMakeDir;$env:PATH"
 }
 
+# Ensure Git is in the PATH for CMake FetchContent
+$gitPaths = @(
+    "C:\Program Files\Git\cmd",
+    "C:\Program Files\Microsoft Visual Studio\18\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TeamFoundation\Team Explorer\Git\cmd",
+    "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\TeamFoundation\Team Explorer\Git\cmd"
+)
+foreach ($gp in $gitPaths) {
+    if (Test-Path $gp) {
+        $env:PATH = "$gp;$env:PATH"
+        break
+    }
+}
+
 # Prefer VS 2022 Build Tools for CUDA compatibility, falling back to VS 2026 Enterprise
 $VsDevCmd = "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat"
 if (-not (Test-Path $VsDevCmd)) {
@@ -84,7 +97,7 @@ function Build-Native-And-Stage($buildDir, $cudaEnabled, $csharpProjectDir) {
     try {
         $cudaFlags = ""
         if ($cudaEnabled) {
-            $cudaFlags = "-DWITH_CUDA=ON -DWITH_CUDNN=ON -DCMAKE_CUDA_ARCHITECTURES=`"53;60;61;70;75;80;86;89;90;100;100+PTX`""
+            $cudaFlags = "-DWITH_CUDA=ON -DWITH_CUDNN=ON -DCUDA_ARCH_LIST=`"5.3;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX`" -DCMAKE_CUDA_ARCHITECTURES=`"53;60;61;70;75;80;86;89;90;100;120;120+PTX`""
         } else {
             $cudaFlags = "-DWITH_CUDA=OFF -DWITH_CUDNN=OFF"
         }

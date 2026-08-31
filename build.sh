@@ -96,6 +96,8 @@ build_native_and_stage() {
     cmake_flags=(
       "-DWITH_CUDA=ON"
       "-DWITH_CUDNN=ON"
+      "-DCUDA_ARCH_LIST=5.3;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX"
+      "-DCMAKE_CUDA_ARCHITECTURES=53;60;61;70;75;80;86;89;90;100;120;120+PTX"
       "-DWITH_MKL=OFF"
       "-DOPENMP_RUNTIME=COMP"
     )
