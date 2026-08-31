@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **GPU Architectures**: Added native compilation support for Ada Lovelace (RTX 40 series, compute capability 8.9) and Blackwell (RTX 50 series, compute capability 10.0) architectures without JIT compilation, compiled natively using CUDA 12.8 and cuDNN 8.9.
 - **Samples**: Added a suite of 10 CPU/GPU sample projects demonstrating integration with Console, ASP.NET Core (singleton request serialization), Blazor Server (SignalR), WinForms (Dark Mode), and .NET MAUI.
 - **Mobile Support**: Added native execution support for Android (`arm64-v8a` via Eigen/Ruy) and iOS (`arm64` via Apple Accelerate), featuring automatic MSBuild signing overrides and resource extraction workarounds.
 - **Documentation**: Created a complete, production-ready VitePress documentation site covering Getting Started, the .NET 10.0 sample suite, advanced mobile deployment, and an exhaustive API options reference.

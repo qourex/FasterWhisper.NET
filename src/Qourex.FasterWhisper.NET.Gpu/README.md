@@ -46,23 +46,40 @@ To run this package with GPU acceleration (`device: "cuda"`), verify that the ho
 
 ### Windows Requirements
 1. **NVIDIA CUDA Toolkit 12.x** — [CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 9.x or 8.9.x** — [cuDNN Downloads](https://developer.nvidia.com/cudnn)
+2. **NVIDIA cuDNN 8.9.x** (Required: `cudnn64_8.dll`) — [cuDNN 8.x Archive Downloads](https://developer.nvidia.com/cudnn-archive)
+   > **Note:** cuDNN 8.9.x is strictly required. cuDNN 9 (`cudnn64_9.dll`) is currently not supported.
 
 Ensure the following dynamic libraries are present in your system `PATH`:
 - `cudart64_12.dll` (or active CUDA 12 runtime)
 - `cublas64_12.dll`
 - `cublasLt64_12.dll`
-- `cudnn64_*.dll`
+- `cudnn64_8.dll` (and `cudnn_*.dll` helper libraries)
 
 ### Linux and WSL2 Requirements
 1. **NVIDIA CUDA Toolkit 12.x** — [Linux CUDA Downloads](https://developer.nvidia.com/cuda-downloads)
-2. **NVIDIA cuDNN 9.x or 8.9.x** — [Linux cuDNN Downloads](https://developer.nvidia.com/cudnn)
+2. **NVIDIA cuDNN 8.9.x** (`libcudnn.so.8`) — [Linux cuDNN 8.x Downloads](https://developer.nvidia.com/cudnn-archive)
 
 Ensure the following shared libraries are accessible in `LD_LIBRARY_PATH` or standard library paths (`/usr/local/cuda/lib64`):
 - `libcudart.so.12`
 - `libcublas.so.12`
 - `libcublasLt.so.12`
-- `libcudnn.so.*`
+- `libcudnn.so.8`
+
+### Supported GPU Architectures
+
+The bundled native GPU binaries are pre-compiled with native SASS code and forward-compatible PTX for all modern NVIDIA GPU generations:
+
+| Architecture | Compute Capability | Example GPUs |
+| :--- | :--- | :--- |
+| **Maxwell** | `sm_53` | GTX 900M, Jetson Nano / TX1 |
+| **Pascal** | `sm_60`, `sm_61` | GTX 1060 / 1070 / 1080 / 1080 Ti, Tesla P40 / P100 |
+| **Volta** | `sm_70` | Titan V, Tesla V100 |
+| **Turing** | `sm_75` | RTX 2060 / 2070 / 2080, GTX 1660, Tesla T4 |
+| **Ampere** | `sm_80`, `sm_86` | RTX 3060 / 3070 / 3080 / 3090, A100, A10 |
+| **Ada Lovelace** | `sm_89` | RTX 4060 / 4070 / 4080 / 4090, RTX 5000 Ada, L4, L40 |
+| **Hopper** | `sm_90` | H100, H800 |
+| **Blackwell (RTX 50-Series)** | `sm_100`, `sm_120` | RTX 5070 / 5080 / 5090, B100, B200 |
+| **Future NVIDIA GPUs** | `PTX (compute_90/100/120)` | Automatic JIT compilation by the NVIDIA driver via embedded PTX |
 
 ---
 

@@ -31,6 +31,8 @@ namespace Qourex.FasterWhisper.NET
         private string _computeType = "default";
         private int[] _deviceIndices = [0];
         private int _numReplicas = 1;
+        private int _cpuThreads = 4;
+        private bool _flashAttention = false;
         private WhisperOptions _options = new();
         private VadOptions _vadOptions = new();
         private ILogger? _logger;
@@ -78,6 +80,20 @@ namespace Qourex.FasterWhisper.NET
         public WhisperModelBuilder WithNumReplicas(int numReplicas)
         {
             _numReplicas = numReplicas;
+            return this;
+        }
+
+        /// <summary>Sets the number of threads per replica for CPU execution. Default is 4.</summary>
+        public WhisperModelBuilder WithCpuThreads(int cpuThreads)
+        {
+            _cpuThreads = cpuThreads;
+            return this;
+        }
+
+        /// <summary>Enables Flash Attention optimization (CUDA compute capability >= 8.0).</summary>
+        public WhisperModelBuilder WithFlashAttention(bool enabled = true)
+        {
+            _flashAttention = enabled;
             return this;
         }
 
@@ -242,10 +258,10 @@ namespace Qourex.FasterWhisper.NET
             if (_useMemoryMapping)
             {
                 return WhisperModel.LoadMemoryMapped(_model, _device, _computeType, _deviceIndices,
-                    cpuThreads: 4, flashAttention: false, numReplicas: _numReplicas, logger: _logger);
+                    cpuThreads: _cpuThreads, flashAttention: _flashAttention, numReplicas: _numReplicas, logger: _logger);
             }
             return await WhisperModel.LoadAsync(_model, _device, _computeType, _deviceIndices,
-                    numReplicas: _numReplicas, cancellationToken: cancellationToken, logger: _logger)
+                    cpuThreads: _cpuThreads, flashAttention: _flashAttention, numReplicas: _numReplicas, cancellationToken: cancellationToken, logger: _logger)
                 .ConfigureAwait(false);
         }
 
@@ -257,9 +273,9 @@ namespace Qourex.FasterWhisper.NET
             if (_useMemoryMapping)
             {
                 return WhisperModel.LoadMemoryMapped(_model, _device, _computeType, _deviceIndices,
-                    cpuThreads: 4, flashAttention: false, numReplicas: _numReplicas, logger: _logger);
+                    cpuThreads: _cpuThreads, flashAttention: _flashAttention, numReplicas: _numReplicas, logger: _logger);
             }
-            return new WhisperModel(_model, _device, _computeType, _deviceIndices, numReplicas: _numReplicas, logger: _logger);
+            return new WhisperModel(_model, _device, _computeType, _deviceIndices, cpuThreads: _cpuThreads, flashAttention: _flashAttention, numReplicas: _numReplicas, logger: _logger);
         }
     }
 }
