@@ -55,7 +55,8 @@ export default defineConfig({
       { text: 'API Reference', link: '/guide/api-reference' },
       { text: 'Samples', link: '/guide/samples' },
       { text: 'Mobile Deployment', link: '/guide/mobile-deployment' },
-      { text: 'NuGet', link: 'https://www.nuget.org/packages/FasterWhisper.NET' }
+      { text: 'NuGet', link: 'https://www.nuget.org/packages/FasterWhisper.NET' },
+      { text: 'Sponsor', link: 'https://www.patreon.com/qourex' }
     ],
     sidebar: [
       {

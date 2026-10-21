@@ -10,6 +10,7 @@
 [![Documentation](https://img.shields.io/badge/docs-VitePress-brightgreen.svg?style=flat-square)](https://qourex.github.io/FasterWhisper.NET/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
+[![Sponsor on Patreon](https://img.shields.io/badge/Patreon-Sponsor%20Qourex-F96854?style=flat-square&logo=patreon&logoColor=white)](https://www.patreon.com/qourex)
 
 **[Documentation Portal](https://qourex.github.io/FasterWhisper.NET/)** — Guides, API references, .NET 10.0 samples, and mobile deployment walkthroughs.
 
@@ -136,6 +137,7 @@ graph TD
 - [Project Structure](#project-structure)
 - [Deployment and Production Guidelines](#deployment-and-production-guidelines)
 - [Downstream Licensing Obligations](#downstream-licensing-obligations)
+- [Supporting the Project](#supporting-the-project)
 - [License](#license)
 
 ---
@@ -796,6 +798,16 @@ When deploying applications utilizing FasterWhisper.NET, downstream developers m
 
 ---
 
+## Supporting the Project
+
+**FasterWhisper.NET** is developed and maintained by **[Qourex](https://qourex.com)** as free, MIT-licensed open-source software.
+
+Maintaining cross-platform native C++, CUDA, and C# interop builds across Windows, Linux, macOS, Android, and iOS takes significant engineering effort and hardware testing resources. If Qourex open-source libraries save your team engineering time or cloud infrastructure costs, please consider supporting our ongoing development:
+
+- **[Become a Sponsor on Patreon](https://www.patreon.com/qourex)**
+
+---
+
 ## License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
@@ -809,5 +821,5 @@ MIT License · Copyright (c) 2026 Qourex
 <p align="center">
   Maintained by Qourex
   <br />
-  <a href="https://github.com/qourex/fasterwhisper.net/issues">Report Issue</a> · <a href="https://github.com/qourex/fasterwhisper.net/discussions">Discussions</a>
+  <a href="https://github.com/qourex/fasterwhisper.net/issues">Report Issue</a> · <a href="https://github.com/qourex/fasterwhisper.net/discussions">Discussions</a> · <a href="https://www.patreon.com/qourex">Sponsor on Patreon</a>
 </p>

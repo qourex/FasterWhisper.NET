@@ -10,6 +10,7 @@
 [![Documentation](https://img.shields.io/badge/docs-VitePress-brightgreen.svg?style=flat-square)](https://qourex.github.io/FasterWhisper.NET/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
+[![Sponsor on Patreon](https://img.shields.io/badge/Patreon-Sponsor%20Qourex-F96854?style=flat-square&logo=patreon&logoColor=white)](https://www.patreon.com/qourex)
 
 **[Documentation Portal](https://qourex.github.io/FasterWhisper.NET/)** — Guides, API references, .NET 10.0 samples, and mobile deployment walkthroughs.
 
@@ -159,6 +160,16 @@ Enable Flash Attention for Ampere and newer architectures:
 flashAttention: true
 ```
 *Note: Flash Attention requires an NVIDIA GPU with compute capability ≥ 8.0 (RTX 30-series, RTX 40-series, RTX 50-series, A100, H100).*
+
+---
+
+## Supporting the Project
+
+**FasterWhisper.NET.Gpu** is developed and maintained by **[Qourex](https://qourex.com)** as free, MIT-licensed open-source software.
+
+If this library saves your team engineering time or cloud GPU costs, please consider supporting our ongoing CUDA/CPU build maintenance and future Qourex open-source libraries:
+
+- **[Become a Sponsor on Patreon](https://www.patreon.com/qourex)**
 
 ---
 
